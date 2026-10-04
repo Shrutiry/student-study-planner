@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Analytics - Study Planner</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            📚 Study Planner
+        </div>
+
+        <nav>
+            <a href="/">🏠 Dashboard</a>
+            <a href="/planner">📅 Study Planner</a>
+            <a href="/notes">📝 My Notes</a>
+            <a href="/goals">🎯 Goals</a>
+            <a href="/reminders">⏰ Reminders</a>
+            <a href="/timer">⏱️ Study Timer</a>
+
+            <a href="/analytics" class="active">
+                📊 Analytics
+            </a>
+
+            <a href="/achievements">
+                🏆 Achievements
+            </a>
+        </nav>
+
+    </aside>
+
+
+    <main class="main">
+
+        <h1>📊 Study Analytics</h1>
+
+        <p>
+            Track your study progress and performance.
+        </p>
+
+
+        <!-- STATISTICS -->
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <h3>📚 Total Tasks</h3>
+                <h2>{{ total_tasks }}</h2>
+            </div>
+
+
+            <div class="stat-card">
+                <h3>✅ Completed Tasks</h3>
+                <h2>{{ completed_tasks }}</h2>
+            </div>
+
+
+            <div class="stat-card">
+                <h3>⏳ Pending Tasks</h3>
+
+                <h2>
+                    {{ total_tasks - completed_tasks }}
+                </h2>
+            </div>
+
+
+            <div class="stat-card">
+                <h3>⏱️ Study Time</h3>
+
+                <h2>
+                    {{ total_study_minutes }}
+                </h2>
+
+                <p>minutes</p>
+            </div>
+
+        </div>
+
+
+        <!-- TASK PROGRESS -->
+
+        <div class="form-card">
+
+            <h2>📈 Task Completion</h2>
+
+            {% if total_tasks > 0 %}
+
+                {% set percentage =
+                    (completed_tasks * 100 / total_tasks)|round|int
+                %}
+
+                <p>
+                    You have completed
+                    <strong>{{ percentage }}%</strong>
+                    of your study tasks.
+                </p>
+
+
+                <div class="progress-container"
+                     style="--progress: {{ percentage }}%;">
+
+                    <div class="progress-bar"></div>
+
+                </div>
+
+            {% else %}
+
+                <p>
+                    No study tasks added yet.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- NOTES AND GOALS -->
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+
+                <h3>📝 Total Notes</h3>
+
+                <h2>
+                    {{ total_notes }}
+                </h2>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h3>🎯 Total Goals</h3>
+
+                <h2>
+                    {{ total_goals }}
+                </h2>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h3>🏆 Completed Goals</h3>
+
+                <h2>
+                    {{ completed_goals }}
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <!-- STUDY SUMMARY -->
+
+        <div class="form-card">
+
+            <h2>📋 Study Summary</h2>
+
+            <p>
+                📚 Total Tasks:
+                <strong>{{ total_tasks }}</strong>
+            </p>
+
+            <p>
+                ✅ Completed Tasks:
+                <strong>{{ completed_tasks }}</strong>
+            </p>
+
+            <p>
+                ⏳ Pending Tasks:
+                <strong>
+                    {{ total_tasks - completed_tasks }}
+                </strong>
+            </p>
+
+            <p>
+                📝 Notes:
+                <strong>{{ total_notes }}</strong>
+            </p>
+
+            <p>
+                🎯 Goals:
+                <strong>{{ total_goals }}</strong>
+            </p>
+
+            <p>
+                🏆 Completed Goals:
+                <strong>{{ completed_goals }}</strong>
+            </p>
+
+            <p>
+                ⏱️ Study Time:
+                <strong>
+                    {{ total_study_minutes }} minutes
+                </strong>
+            </p>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

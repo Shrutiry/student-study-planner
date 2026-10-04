@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Study Planner</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+<div class="layout">
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            📚 Study Planner
+        </div>
+
+        <nav>
+
+            <a href="/">
+                🏠 Dashboard
+            </a>
+
+            <a href="/planner" class="active">
+                📅 Study Planner
+            </a>
+
+            <a href="/notes">
+                📝 My Notes
+            </a>
+
+            <a href="/goals">
+                🎯 Goals
+            </a>
+
+            <a href="/reminders">
+                ⏰ Reminders
+            </a>
+
+            <a href="/timer">
+                ⏱️ Study Timer
+            </a>
+
+            <a href="/analytics">
+                📊 Analytics
+            </a>
+
+            <a href="/achievements">
+                🏆 Achievements
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="main">
+
+
+        <h1>
+            📅 Study Planner
+        </h1>
+
+        <p>
+            Plan your study tasks and stay organized.
+        </p>
+
+
+        <!-- ADD TASK -->
+
+        <div class="form-card">
+
+            <h2>
+                ➕ Add Study Task
+            </h2>
+
+            <form action="/add-task"
+                  method="POST">
+
+
+                <label>
+                    Subject
+                </label>
+
+                <input
+                    type="text"
+                    name="subject"
+                    placeholder="Example: Python"
+                    required
+                >
+
+
+                <label>
+                    Topic
+                </label>
+
+                <input
+                    type="text"
+                    name="topic"
+                    placeholder="Example: Functions"
+                    required
+                >
+
+
+                <label>
+                    Study Date
+                </label>
+
+                <input
+                    type="date"
+                    name="study_date"
+                    required
+                >
+
+
+                <label>
+                    Study Time
+                </label>
+
+                <input
+                    type="time"
+                    name="study_time"
+                >
+
+
+                <label>
+                    Priority
+                </label>
+
+                <select name="priority">
+
+                    <option value="Low">
+                        Low
+                    </option>
+
+                    <option value="Medium" selected>
+                        Medium
+                    </option>
+
+                    <option value="High">
+                        High
+                    </option>
+
+                </select>
+
+
+                <button type="submit"
+                        class="primary-btn">
+
+                    ➕ Add Task
+
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- TASK LIST -->
+
+        <div class="section">
+
+            <h2>
+                📋 Your Tasks
+            </h2>
+
+
+            {% if tasks %}
+
+            <div class="task-grid">
+
+                {% for task in tasks %}
+
+                <div class="task-card
+                    {% if task['status'] == 'Completed' %}
+                    task-completed
+                    {% endif %}
+                ">
+
+
+                    <div class="task-header">
+
+                        <h3>
+                            {{ task["subject"] }}
+                        </h3>
+
+                        <span class="priority
+                        {{ task['priority']|lower }}">
+
+                            {{ task["priority"] }}
+
+                        </span>
+
+                    </div>
+
+
+                    <p>
+                        📖 {{ task["topic"] }}
+                    </p>
+
+                    <p>
+                        📅 {{ task["study_date"] }}
+                    </p>
+
+                    <p>
+                        ⏰ {{ task["study_time"] }}
+                    </p>
+
+
+                    <p>
+
+                        Status:
+
+                        <strong>
+                            {{ task["status"] }}
+                        </strong>
+
+                    </p>
+
+
+                    <div class="actions">
+
+                        {% if task["status"] != "Completed" %}
+
+                        <a
+                            href="/complete-task/{{ task['id'] }}"
+                            class="success-btn"
+                        >
+
+                            ✅ Complete
+
+                        </a>
+
+                        {% endif %}
+
+
+                        <a
+                            href="/edit-task/{{ task['id'] }}"
+                            class="edit-btn"
+                        >
+
+                            ✏️ Edit
+
+                        </a>
+
+
+                        <a
+                            href="/delete-task/{{ task['id'] }}"
+                            class="delete-btn"
+                            onclick="
+                            return confirm(
+                            'Delete this task?'
+                            )
+                            "
+                        >
+
+                            🗑️ Delete
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            {% else %}
+
+            <div class="empty-box">
+
+                📅 No study tasks yet.
+
+                <br><br>
+
+                Add your first task above!
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

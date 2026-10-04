@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Student Study Planner</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            📚 Study Planner
+        </div>
+
+        <nav>
+
+            <a href="/" class="active">
+                🏠 Dashboard
+            </a>
+
+            <a href="/planner">
+                📅 Study Planner
+            </a>
+
+            <a href="/notes">
+                📝 My Notes
+            </a>
+
+            <a href="/goals">
+                🎯 Goals
+            </a>
+
+            <a href="/reminders">
+                ⏰ Reminders
+            </a>
+
+            <a href="/timer">
+                ⏱️ Study Timer
+            </a>
+
+            <a href="/analytics">
+                📊 Analytics
+            </a>
+
+            <a href="/achievements">
+                🏆 Achievements
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <div class="top-header">
+
+            <div>
+
+                <h1>
+                    Welcome to Student Study Planner 👋
+                </h1>
+
+                <p>
+                    Organize your studies and achieve your goals.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- STAT CARDS -->
+
+        <div class="stats">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    📅
+                </div>
+
+                <h3>
+                    Total Tasks
+                </h3>
+
+                <strong>
+                    {{ total_tasks }}
+                </strong>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    ✅
+                </div>
+
+                <h3>
+                    Completed
+                </h3>
+
+                <strong>
+                    {{ completed_tasks }}
+                </strong>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    📝
+                </div>
+
+                <h3>
+                    Notes
+                </h3>
+
+                <strong>
+                    {{ total_notes }}
+                </strong>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    🎯
+                </div>
+
+                <h3>
+                    Active Goals
+                </h3>
+
+                <strong>
+                    {{ active_goals }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- QUICK ACTIONS -->
+
+        <section class="section">
+
+            <h2>
+                ⚡ Quick Actions
+            </h2>
+
+            <div class="quick-actions">
+
+                <a href="/planner" class="quick-card">
+                    📅
+                    <span>Study Planner</span>
+                </a>
+
+                <a href="/notes" class="quick-card">
+                    📝
+                    <span>My Notes</span>
+                </a>
+
+                <a href="/goals" class="quick-card">
+                    🎯
+                    <span>Goals</span>
+                </a>
+
+                <a href="/timer" class="quick-card">
+                    ⏱️
+                    <span>Study Timer</span>
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- RECENT TASKS -->
+
+        <section class="section">
+
+            <h2>
+                📅 Study Tasks
+            </h2>
+
+            {% if recent_tasks %}
+
+            <div class="dashboard-list">
+
+                {% for task in recent_tasks %}
+
+                <div class="list-item">
+
+                    <div>
+
+                        <strong>
+                            {{ task["subject"] }}
+                        </strong>
+
+                        <p>
+                            {{ task["topic"] }}
+                        </p>
+
+                    </div>
+
+                    <span class="status
+                    {% if task['status'] == 'Completed' %}
+                    completed
+                    {% endif %}">
+
+                        {{ task["status"] }}
+
+                    </span>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            {% else %}
+
+            <div class="empty-box">
+                No study tasks yet.
+            </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- GOALS -->
+
+        <section class="section">
+
+            <h2>
+                🎯 Current Goals
+            </h2>
+
+            {% if goals %}
+
+            <div class="dashboard-list">
+
+                {% for goal in goals %}
+
+                <div class="list-item">
+
+                    <div>
+
+                        <strong>
+                            {{ goal["title"] }}
+                        </strong>
+
+                        <p>
+                            Target: {{ goal["target_date"] }}
+                        </p>
+
+                    </div>
+
+                    <strong>
+                        {{ goal["progress"] }}%
+                    </strong>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            {% else %}
+
+            <div class="empty-box">
+                No goals added yet.
+            </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- MOTIVATION -->
+
+        <div class="motivation">
+
+            <h2>
+                💡 Today's Motivation
+            </h2>
+
+            <p>
+                Small progress every day leads to big achievements.
+            </p>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

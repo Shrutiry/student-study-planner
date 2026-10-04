@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Study Planner - Study Planner</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            📚 Study Planner
+        </div>
+
+        <nav>
+
+            <a href="/">
+                🏠 Dashboard
+            </a>
+
+            <a href="/planner" class="active">
+                📅 Study Planner
+            </a>
+
+            <a href="/notes">
+                📝 My Notes
+            </a>
+
+            <a href="/goals">
+                🎯 Goals
+            </a>
+
+            <a href="/reminders">
+                ⏰ Reminders
+            </a>
+
+            <a href="/timer">
+                ⏱️ Study Timer
+            </a>
+
+            <a href="/analytics">
+                📊 Analytics
+            </a>
+
+            <a href="/achievements">
+                🏆 Achievements
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+        <div class="page-header">
+
+            <h1>📅 Study Planner</h1>
+
+            <p>
+                Plan your study tasks and track your progress.
+            </p>
+
+        </div>
+
+
+        <!-- ADD STUDY TASK -->
+
+        <div class="card">
+
+            <h2>➕ Add Study Task</h2>
+
+            <form action="/add-task"
+                  method="POST"
+                  class="form-grid">
+
+                <div>
+
+                    <label>Subject</label>
+
+                    <input
+                        type="text"
+                        name="subject"
+                        placeholder="e.g. Python"
+                        required>
+
+                </div>
+
+
+                <div>
+
+                    <label>Topic</label>
+
+                    <input
+                        type="text"
+                        name="topic"
+                        placeholder="e.g. Functions"
+                        required>
+
+                </div>
+
+
+                <div>
+
+                    <label>Date</label>
+
+                    <input
+                        type="date"
+                        name="study_date"
+                        required>
+
+                </div>
+
+
+                <div>
+
+                    <label>Study Time</label>
+
+                    <input
+                        type="time"
+                        name="study_time"
+                        required>
+
+                </div>
+
+
+                <div>
+
+                    <label>Priority</label>
+
+                    <select name="priority">
+
+                        <option value="Low">
+                            Low
+                        </option>
+
+                        <option value="Medium" selected>
+                            Medium
+                        </option>
+
+                        <option value="High">
+                            High
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-button">
+
+                    <button type="submit">
+                        Add Task
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <!-- MY STUDY TASKS -->
+
+        <div class="card">
+
+            <h2>📚 My Study Tasks</h2>
+
+
+            {% if tasks %}
+
+                <div class="task-list">
+
+                    {% for task in tasks %}
+
+                        <div class="task-card">
+
+                            <div class="task-info">
+
+                                <h3>
+                                    {{ task['subject'] }}
+                                </h3>
+
+
+                                <p>
+                                    <strong>Topic:</strong>
+                                    {{ task['topic'] }}
+                                </p>
+
+
+                                <p>
+                                    📅 {{ task['study_date'] }}
+                                    &nbsp; | &nbsp;
+                                    ⏰ {{ task['study_time'] }}
+                                </p>
+
+
+                                <span class="priority {{ task['priority']|lower }}">
+                                    {{ task['priority'] }} Priority
+                                </span>
+
+
+                                {% if task['status'] == 'Completed' %}
+
+                                    <span class="status completed">
+                                        ✅ Completed
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status pending">
+                                        ⏳ Pending
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="task-actions">
+
+                                {% if task['status'] != 'Completed' %}
+
+                                    <a href="/complete-task/{{ task['id'] }}"
+                                       class="btn-success">
+                                        ✅ Complete
+                                    </a>
+
+                                {% endif %}
+
+
+                                <a href="/edit-task/{{ task['id'] }}"
+                                   class="btn-edit">
+                                    ✏️ Edit
+                                </a>
+
+
+                                <a href="/delete-task/{{ task['id'] }}"
+                                   class="btn-delete"
+                                   onclick="return confirm('Delete this task?')">
+                                    🗑️ Delete
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    <h3>
+                        📭 No study tasks yet
+                    </h3>
+
+                    <p>
+                        Add your first study task using the form above.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

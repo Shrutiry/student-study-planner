@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Reminders - Study Planner</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+<div class="layout">
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            📚 Study Planner
+        </div>
+
+        <nav>
+
+            <a href="/">🏠 Dashboard</a>
+
+            <a href="/planner">
+                📅 Study Planner
+            </a>
+
+            <a href="/notes">
+                📝 My Notes
+            </a>
+
+            <a href="/goals">
+                🎯 Goals
+            </a>
+
+            <a href="/reminders" class="active">
+                ⏰ Reminders
+            </a>
+
+            <a href="/timer">
+                ⏱️ Study Timer
+            </a>
+
+            <a href="/analytics">
+                📊 Analytics
+            </a>
+
+            <a href="/achievements">
+                🏆 Achievements
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main">
+
+        <h1>
+            ⏰ Reminders
+        </h1>
+
+        <p>
+            Set reminders for your study activities.
+        </p>
+
+
+        <!-- ADD REMINDER -->
+
+        <div class="form-card">
+
+            <h2>
+                ➕ Add Reminder
+            </h2>
+
+            <form action="/add-reminder"
+                  method="POST">
+
+                <label>
+                    Reminder
+                </label>
+
+                <input
+                    type="text"
+                    name="title"
+                    placeholder="Example: Revise Python"
+                    required
+                >
+
+
+                <label>
+                    Date
+                </label>
+
+                <input
+                    type="date"
+                    name="reminder_date"
+                    required
+                >
+
+
+                <label>
+                    Time
+                </label>
+
+                <input
+                    type="time"
+                    name="reminder_time"
+                    required
+                >
+
+
+                <button
+                    type="submit"
+                    class="primary-btn">
+
+                    🔔 Add Reminder
+
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- REMINDERS -->
+
+        <section class="section">
+
+            <h2>
+                🔔 Your Reminders
+            </h2>
+
+
+            {% if reminders %}
+
+            <div class="task-grid">
+
+                {% for reminder in reminders %}
+
+                <div class="task-card">
+
+                    <h3>
+                        {{ reminder["title"] }}
+                    </h3>
+
+
+                    <p>
+                        📅 {{ reminder["reminder_date"] }}
+                    </p>
+
+
+                    <p>
+                        ⏰ {{ reminder["reminder_time"] }}
+                    </p>
+
+
+                    <p>
+                        Status:
+
+                        <strong>
+                            {{ reminder["status"] }}
+                        </strong>
+
+                    </p>
+
+
+                    {% if reminder["status"] != "Completed" %}
+
+                    <a
+                        href="/complete-reminder/{{ reminder['id'] }}"
+                        class="success-btn">
+
+                        ✅ Complete
+
+                    </a>
+
+                    {% endif %}
+
+
+                    <a
+                        href="/delete-reminder/{{ reminder['id'] }}"
+                        class="delete-btn"
+                        onclick="return confirm('Delete this reminder?')">
+
+                        🗑️ Delete
+
+                    </a>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            {% else %}
+
+            <div class="empty-box">
+
+                No reminders yet.
+
+            </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =========================
+     BROWSER NOTIFICATIONS
+========================= -->
+
+<script>
+
+    // Ask the browser for notification permission
+    function requestNotificationPermission() {
+
+        if ("Notification" in window) {
+
+            if (Notification.permission === "default") {
+
+                Notification.requestPermission();
+
+            }
+
+        }
+
+    }
+
+
+    // Show notification
+    function showReminderNotification(title, reminderId) {
+
+        if (!("Notification" in window)) {
+            return;
+        }
+
+        if (Notification.permission !== "granted") {
+            return;
+        }
+
+
+        new Notification("📚 Study Planner Reminder", {
+
+            body: "⏰ It's time to study: " + title,
+
+            icon: "📚"
+
+        });
+
+
+        // Remember that this reminder was already shown
+        localStorage.setItem(
+            "reminder_" + reminderId,
+            "shown"
+        );
+
+    }
+
+
+    // Check reminders
+    function checkReminders() {
+
+        const now = new Date();
+
+
+        {% for reminder in reminders %}
+
+        {% if reminder["status"] != "Completed" %}
+
+        {
+
+            const reminderId = "{{ reminder['id'] }}";
+
+            const reminderTitle =
+                "{{ reminder['title']|replace('\\', '\\\\')|replace('"', '\\"') }}";
+
+
+            const reminderDate =
+                "{{ reminder['reminder_date'] }}";
+
+            const reminderTime =
+                "{{ reminder['reminder_time'] }}";
+
+
+            const reminderDateTime =
+                new Date(
+                    reminderDate + "T" + reminderTime
+                );
+
+
+            const alreadyShown =
+                localStorage.getItem(
+                    "reminder_" + reminderId
+                );
+
+
+            // Check if reminder time has arrived
+            if (
+                now >= reminderDateTime &&
+                !alreadyShown
+            ) {
+
+                showReminderNotification(
+                    reminderTitle,
+                    reminderId
+                );
+
+            }
+
+        }
+
+        {% endif %}
+
+        {% endfor %}
+
+    }
+
+
+    // Ask for permission when page opens
+    requestNotificationPermission();
+
+
+    // Check immediately
+    checkReminders();
+
+
+    // Check every 10 seconds
+    setInterval(
+        checkReminders,
+        10000
+    );
+
+</script>
+
+
+</body>
+
+</html>

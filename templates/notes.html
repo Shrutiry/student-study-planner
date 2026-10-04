@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Notes</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+<div class="layout">
+
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            📚 Study Planner
+        </div>
+
+        <nav>
+
+            <a href="/">
+                🏠 Dashboard
+            </a>
+
+            <a href="/planner">
+                📅 Study Planner
+            </a>
+
+            <a href="/notes" class="active">
+                📝 My Notes
+            </a>
+
+            <a href="/goals">
+                🎯 Goals
+            </a>
+
+            <a href="/reminders">
+                ⏰ Reminders
+            </a>
+
+            <a href="/timer">
+                ⏱️ Study Timer
+            </a>
+
+            <a href="/analytics">
+                📊 Analytics
+            </a>
+
+            <a href="/achievements">
+                🏆 Achievements
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="main">
+
+        <h1>
+            📝 My Notes
+        </h1>
+
+        <p>
+            Create and organize your study notes.
+        </p>
+
+
+        <!-- ADD NOTE -->
+
+        <div class="form-card">
+
+            <h2>
+                ➕ Add New Note
+            </h2>
+
+            <form action="/add-note"
+                  method="POST">
+
+
+                <label>
+                    Note Title
+                </label>
+
+                <input
+                    type="text"
+                    name="title"
+                    placeholder="Example: Python Functions"
+                    required
+                >
+
+
+                <label>
+                    Subject
+                </label>
+
+                <input
+                    type="text"
+                    name="subject"
+                    placeholder="Example: Python"
+                    required
+                >
+
+
+                <label>
+                    Note Content
+                </label>
+
+                <textarea
+                    name="content"
+                    rows="7"
+                    placeholder="Write your notes..."
+                    required
+                ></textarea>
+
+
+                <label class="check-label">
+
+                    <input
+                        type="checkbox"
+                        name="important"
+                        value="1"
+                    >
+
+                    ⭐ Important Note
+
+                </label>
+
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+
+                    ➕ Save Note
+
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- SEARCH -->
+
+        <div class="search-box">
+
+            <form action="/notes"
+                  method="GET">
+
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="🔍 Search notes..."
+                    value="{{ search }}"
+                >
+
+
+                <label class="check-label">
+
+                    <input
+                        type="checkbox"
+                        name="important"
+                        value="1"
+
+                        {% if important == "1" %}
+                        checked
+                        {% endif %}
+                    >
+
+                    ⭐ Important Only
+
+                </label>
+
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+
+                    Search
+
+                </button>
+
+
+                <a
+                    href="/notes"
+                    class="clear-btn"
+                >
+
+                    Clear
+
+                </a>
+
+            </form>
+
+        </div>
+
+
+        <!-- NOTES -->
+
+        <section class="section">
+
+            <h2>
+                📚 Your Notes
+            </h2>
+
+
+            {% if notes %}
+
+            <div class="notes-grid">
+
+                {% for note in notes %}
+
+                <div class="note-card">
+
+
+                    <div class="note-header">
+
+                        <h3>
+                            {{ note["title"] }}
+                        </h3>
+
+
+                        {% if note["important"] == 1 %}
+
+                        <span class="important">
+
+                            ⭐ Important
+
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <p class="subject">
+
+                        📚 {{ note["subject"] }}
+
+                    </p>
+
+
+                    <p class="note-content">
+
+                        {{ note["content"] }}
+
+                    </p>
+
+
+                    <div class="actions">
+
+                        <a
+                            href="/edit-note/{{ note['id'] }}"
+                            class="edit-btn"
+                        >
+
+                            ✏️ Edit
+
+                        </a>
+
+
+                        <a
+                            href="/delete-note/{{ note['id'] }}"
+                            class="delete-btn"
+
+                            onclick="
+                            return confirm(
+                            'Delete this note?'
+                            )
+                            "
+                        >
+
+                            🗑️ Delete
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            {% else %}
+
+            <div class="empty-box">
+
+                📝 No notes found.
+
+            </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

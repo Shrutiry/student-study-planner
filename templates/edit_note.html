@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Note - Student Study Planner</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+
+    <aside class="sidebar">
+
+        <h2>📚 Study Planner</h2>
+
+        <ul>
+
+            <li>
+                <a href="/">🏠 Dashboard</a>
+            </li>
+
+            <li>
+                <a href="/planner">📅 Study Planner</a>
+            </li>
+
+            <li class="active">
+                <a href="/notes">📝 My Notes</a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+
+    <main class="main-content">
+
+        <h1>✏️ Edit Note</h1>
+
+        <p class="subtitle">
+            Update your study note.
+        </p>
+
+
+        <div class="form-card">
+
+            <form
+                action="/update-note/{{ note[0] }}"
+                method="POST"
+            >
+
+
+                <label>Note Title</label>
+
+                <input
+                    type="text"
+                    name="title"
+                    value="{{ note[1] }}"
+                    required
+                >
+
+
+                <label>Subject</label>
+
+                <input
+                    type="text"
+                    name="subject"
+                    value="{{ note[2] }}"
+                    required
+                >
+
+
+                <label>Note Content</label>
+
+                <textarea
+                    name="content"
+                    rows="8"
+                    required
+                >{{ note[4] }}</textarea>
+
+
+                <label class="checkbox-label">
+
+                    <input
+                        type="checkbox"
+                        name="important"
+                        value="1"
+
+                        {% if note[3] == 1 %}
+                        checked
+                        {% endif %}
+                    >
+
+                    ⭐ Mark as Important
+
+                </label>
+
+
+                <button
+                    type="submit"
+                    class="add-btn"
+                >
+
+                    💾 Update Note
+
+                </button>
+
+
+                <br><br>
+
+
+                <a
+                    href="/notes"
+                    class="back-btn"
+                >
+
+                    ← Back to Notes
+
+                </a>
+
+            </form>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

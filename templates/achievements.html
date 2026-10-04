@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Achievements - Study Planner</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            📚 Study Planner
+        </div>
+
+        <nav>
+
+            <a href="/">🏠 Dashboard</a>
+
+            <a href="/planner">📅 Study Planner</a>
+
+            <a href="/notes">📝 My Notes</a>
+
+            <a href="/goals">🎯 Goals</a>
+
+            <a href="/reminders">⏰ Reminders</a>
+
+            <a href="/timer">⏱️ Study Timer</a>
+
+            <a href="/analytics">📊 Analytics</a>
+
+            <a href="/achievements" class="active">
+                🏆 Achievements
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="main">
+
+        <h1>🏆 My Achievements</h1>
+
+        <p>
+            Complete study activities and unlock achievements.
+        </p>
+
+
+        <div class="achievement-grid">
+
+            {% for achievement in achievements %}
+
+            <div class="achievement-card
+                {% if achievement.unlocked %}
+                    unlocked
+                {% else %}
+                    locked
+                {% endif %}">
+
+                <div class="achievement-icon">
+
+                    {% if achievement.unlocked %}
+                        🏆
+                    {% else %}
+                        🔒
+                    {% endif %}
+
+                </div>
+
+                <h2>
+                    {{ achievement.title }}
+                </h2>
+
+                <p>
+                    {{ achievement.description }}
+                </p>
+
+
+                {% if achievement.unlocked %}
+
+                    <span class="achievement-status">
+                        ✅ Unlocked
+                    </span>
+
+                {% else %}
+
+                    <span class="achievement-status">
+                        🔒 Locked
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <div class="form-card achievement-message">
+
+            <h2>💪 Keep Going!</h2>
+
+            <p>
+                Complete more study tasks, create notes,
+                achieve your goals and use the study timer
+                to unlock more achievements! 🚀
+            </p>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>
