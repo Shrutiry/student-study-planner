@@ -1,9 +1,15 @@
+/* =====================================================
+   STUDENT STUDY PLANNER
+   Simple and Clean CSS
+   ===================================================== */
+
+/* ---------- BASIC RESET ---------- */
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
-
 
 body {
     font-family: Arial, sans-serif;
@@ -11,11 +17,14 @@ body {
     color: #222;
 }
 
-
 a {
     text-decoration: none;
 }
 
+
+/* =====================================================
+   MAIN LAYOUT
+   ===================================================== */
 
 .layout {
     display: flex;
@@ -23,24 +32,24 @@ a {
 }
 
 
-/* ================= SIDEBAR ================= */
+/* =====================================================
+   SIDEBAR
+   ===================================================== */
 
 .sidebar {
     width: 250px;
+    min-height: 100vh;
+    padding: 25px 15px;
     background: #20243a;
     color: white;
-    padding: 25px 15px;
-    min-height: 100vh;
 }
-
 
 .logo {
+    padding: 10px;
+    margin-bottom: 30px;
     font-size: 21px;
     font-weight: bold;
-    margin-bottom: 35px;
-    padding: 0 10px;
 }
-
 
 .sidebar nav {
     display: flex;
@@ -48,23 +57,33 @@ a {
     gap: 8px;
 }
 
-
 .sidebar nav a {
-    color: #ddd;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
     padding: 13px 15px;
+
+    color: #ddd;
     border-radius: 8px;
+
     transition: 0.2s;
 }
 
+.sidebar nav a:hover {
+    background: #34385a;
+    color: white;
+}
 
-.sidebar nav a:hover,
 .sidebar nav a.active {
     background: #4f46e5;
     color: white;
 }
 
 
-/* ================= MAIN ================= */
+/* =====================================================
+   MAIN CONTENT
+   ===================================================== */
 
 .main {
     flex: 1;
@@ -72,75 +91,113 @@ a {
     max-width: 1400px;
 }
 
-
 .main h1 {
     margin-bottom: 10px;
+    font-size: 30px;
 }
-
 
 .main > p {
     color: #666;
     margin-bottom: 25px;
 }
 
-
-/* ================= STATS ================= */
-
-.stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-    gap: 20px;
-    margin-bottom: 35px;
+.main h2 {
+    margin-bottom: 18px;
 }
 
 
-.stat-card {
+/* =====================================================
+   COMMON CARD
+   ===================================================== */
+
+.card,
+.form-card,
+.stat-card,
+.task-card,
+.note-card,
+.goal-card,
+.timer-card,
+.achievement-card,
+.dashboard-list,
+.empty-box,
+.motivation {
     background: white;
-    padding: 25px;
     border-radius: 12px;
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
 }
 
 
-.stat-card h3 {
-    margin-bottom: 12px;
-    color: #666;
+/* =====================================================
+   DASHBOARD STATISTICS
+   ===================================================== */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(190px, 1fr)
+    );
+
+    gap: 20px;
+    margin-bottom: 35px;
 }
 
+.stat-card {
+    padding: 25px;
+}
+
+.stat-card h3 {
+    margin-bottom: 10px;
+    color: #666;
+    font-size: 14px;
+}
 
 .stat-card strong {
     font-size: 30px;
 }
 
+.stat-icon {
+    width: 45px;
+    height: 45px;
 
-/* ================= SECTIONS ================= */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-.section {
-    margin-top: 30px;
-    margin-bottom: 30px;
+    margin-bottom: 12px;
+
+    border-radius: 10px;
+    background: #eef2ff;
+
+    font-size: 20px;
 }
 
+
+/* =====================================================
+   SECTIONS
+   ===================================================== */
+
+.section {
+    margin: 30px 0;
+}
 
 .section h2 {
     margin-bottom: 18px;
 }
 
 
-/* ================= FORM ================= */
+/* =====================================================
+   FORMS
+   ===================================================== */
 
 .form-card {
-    background: white;
     padding: 25px;
-    border-radius: 12px;
     margin-bottom: 30px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
 }
-
 
 .form-card h2 {
     margin-bottom: 20px;
 }
-
 
 .form-card form {
     display: flex;
@@ -148,431 +205,100 @@ a {
     gap: 10px;
 }
 
-
 .form-card label {
-    font-weight: bold;
     margin-top: 8px;
+    font-weight: bold;
 }
-
 
 .form-card input,
 .form-card textarea,
 .form-card select {
     width: 100%;
     padding: 12px;
+
     border: 1px solid #ddd;
     border-radius: 8px;
+
     font-size: 15px;
 }
-
 
 .form-card textarea {
     resize: vertical;
 }
 
+.form-card input:focus,
+.form-card textarea:focus,
+.form-card select:focus {
+    outline: none;
+    border-color: #4f46e5;
+}
 
-/* ================= BUTTONS ================= */
 
+/* =====================================================
+   BUTTONS
+   ===================================================== */
+
+button,
 .primary-btn,
 .success-btn,
 .edit-btn,
 .delete-btn,
 .clear-btn {
     display: inline-block;
+
     padding: 10px 15px;
+
     border: none;
     border-radius: 7px;
-    cursor: pointer;
-    margin-top: 8px;
-    font-size: 14px;
-}
 
+    cursor: pointer;
+    font-size: 14px;
+
+    transition: 0.2s;
+}
 
 .primary-btn {
     background: #4f46e5;
     color: white;
 }
 
+.primary-btn:hover {
+    background: #4338ca;
+}
 
 .success-btn {
     background: #e8f7ed;
     color: #1c7c3a;
 }
 
-
 .edit-btn {
-    background: #eeeeee;
-    color: #333;
+    background: #fff3cd;
+    color: #856404;
 }
-
 
 .delete-btn {
-    background: #eeeeee;
-    color: #333;
+    background: #f8d7da;
+    color: #842029;
 }
-
 
 .clear-btn {
-    background: #eeeeee;
+    background: #eee;
     color: #333;
 }
 
-
-/* ================= TASKS ================= */
-
-.task-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
+button:hover,
+.primary-btn:hover,
+.success-btn:hover,
+.edit-btn:hover,
+.delete-btn:hover,
+.clear-btn:hover {
+    opacity: 0.85;
 }
 
 
-.task-card {
-    background: white;
-    padding: 22px;
-    border-radius: 12px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
-}
-
-
-.task-card p {
-    margin-top: 10px;
-}
-
-
-.task-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-}
-
-
-.priority {
-    padding: 5px 9px;
-    border-radius: 6px;
-    font-size: 12px;
-}
-
-
-.priority.low {
-    background: #e8f7ed;
-}
-
-
-.priority.medium {
-    background: #fff5d6;
-}
-
-
-.priority.high {
-    background: #ffe4e4;
-}
-
-
-.task-completed {
-    opacity: 0.7;
-}
-
-
-.actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 18px;
-}
-
-
-/* ================= NOTES ================= */
-
-.notes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-
-.note-card {
-    background: white;
-    padding: 22px;
-    border-radius: 12px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
-}
-
-
-.note-header {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-
-.note-card .subject {
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-
-.note-content {
-    margin-top: 15px;
-    line-height: 1.6;
-    white-space: pre-wrap;
-}
-
-
-.important {
-    font-size: 13px;
-    font-weight: bold;
-}
-
-
-/* ================= SEARCH ================= */
-
-.search-box {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-}
-
-
-.search-box form {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-
-.search-box input[type="text"] {
-    flex: 1;
-    min-width: 220px;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-}
-
-
-.check-label {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    margin-top: 8px;
-}
-
-
-/* ================= GOALS ================= */
-
-.goal-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-
-.goal-card {
-    background: white;
-    padding: 22px;
-    border-radius: 12px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
-}
-
-
-.goal-card p {
-    margin: 12px 0;
-}
-
-
-.progress-bar {
-    width: 100%;
-    height: 12px;
-    background: #eee;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-
-.progress {
-    height: 100%;
-    background: #4f46e5;
-}
-
-
-.success-text {
-    font-weight: bold;
-}
-
-
-/* ================= TIMER ================= */
-
-.timer-card {
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-
-#timer {
-    font-size: 70px;
-    font-weight: bold;
-    margin-bottom: 25px;
-}
-
-
-.timer-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-
-/* ================= ACHIEVEMENTS ================= */
-
-.achievement-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 20px;
-}
-
-
-.achievement-card {
-    background: white;
-    padding: 25px;
-    text-align: center;
-    border-radius: 12px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
-    opacity: 0.55;
-}
-
-
-.achievement-card.unlocked {
-    opacity: 1;
-}
-
-
-.achievement-icon {
-    font-size: 45px;
-    margin-bottom: 15px;
-}
-
-
-.achievement-card p {
-    margin: 12px 0;
-    line-height: 1.5;
-}
-
-
-/* ================= DASHBOARD ================= */
-
-.quick-actions {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-}
-
-
-.quick-card {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    color: #222;
-    text-align: center;
-    font-size: 30px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
-}
-
-
-.quick-card span {
-    display: block;
-    font-size: 15px;
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-
-.dashboard-list {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-
-.list-item {
-    padding: 18px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-}
-
-
-.list-item:last-child {
-    border-bottom: none;
-}
-
-
-.list-item p {
-    color: #666;
-    margin-top: 5px;
-}
-
-
-.status {
-    font-size: 13px;
-    padding: 5px 10px;
-    background: #fff5d6;
-    border-radius: 6px;
-}
-
-
-.status.completed {
-    background: #e8f7ed;
-}
-
-
-.empty-box {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    text-align: center;
-    color: #777;
-}
-
-
-.motivation {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    margin-top: 30px;
-}
-
-
-/* ================= MOBILE ================= */
-
-@media (max-width: 768px) {
-
-    .sidebar {
-        width: 200px;
-    }
-
-    .main {
-        padding: 20px;
-    }
-
-    .sidebar nav a {
-        font-size: 13px;
-    }
-
-    #timer {
-        font-size: 50px;
-    }
-
-}/* =========================
-   STUDY PLANNER PAGE
-   ========================= */
+/* =====================================================
+   STUDY PLANNER
+   ===================================================== */
 
 .page-header {
     margin-bottom: 25px;
@@ -580,30 +306,11 @@ a {
 
 .page-header h1 {
     margin-bottom: 8px;
-    font-size: 30px;
 }
 
 .page-header p {
     color: #666;
-    margin: 0;
 }
-
-/* Main cards */
-
-.card {
-    background: white;
-    padding: 25px;
-    margin-bottom: 25px;
-    border-radius: 14px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
-
-.card h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-}
-
-/* Form */
 
 .form-grid {
     display: grid;
@@ -620,17 +327,10 @@ a {
 .form-grid input,
 .form-grid select {
     width: 100%;
-    padding: 11px 12px;
+    padding: 11px;
+
     border: 1px solid #ddd;
     border-radius: 8px;
-    font-size: 14px;
-    box-sizing: border-box;
-}
-
-.form-grid input:focus,
-.form-grid select:focus {
-    outline: none;
-    border-color: #6c63ff;
 }
 
 .form-button {
@@ -640,21 +340,9 @@ a {
 
 .form-button button {
     width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    background: #6c63ff;
+    background: #4f46e5;
     color: white;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
 }
-
-.form-button button:hover {
-    opacity: 0.9;
-}
-
-/* Task list */
 
 .task-list {
     display: flex;
@@ -663,72 +351,27 @@ a {
 }
 
 .task-card {
+    padding: 22px;
+}
+
+.task-card p {
+    margin-top: 8px;
+}
+
+.task-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    padding: 20px;
-    border: 1px solid #eee;
-    border-radius: 12px;
-    background: #fafafa;
+    gap: 10px;
 }
-
-.task-info h3 {
-    margin: 0 0 10px;
-    font-size: 20px;
-}
-
-.task-info p {
-    margin: 7px 0;
-    color: #555;
-}
-
-.priority,
-.status {
-    display: inline-block;
-    padding: 5px 10px;
-    margin-top: 8px;
-    margin-right: 5px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.priority.low {
-    background: #e8f5e9;
-    color: #2e7d32;
-}
-
-.priority.medium {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.priority.high {
-    background: #f8d7da;
-    color: #842029;
-}
-
-.status.completed {
-    background: #d1e7dd;
-    color: #0f5132;
-}
-
-.status.pending {
-    background: #e2e3e5;
-    color: #41464b;
-}
-
-/* Buttons */
 
 .task-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    margin-top: 15px;
 }
 
 .task-actions a {
-    text-decoration: none;
     padding: 9px 12px;
     border-radius: 7px;
     font-size: 13px;
@@ -750,15 +393,349 @@ a {
     color: white;
 }
 
-.task-actions a:hover {
-    opacity: 0.85;
+
+/* =====================================================
+   PRIORITY
+   ===================================================== */
+
+.priority {
+    display: inline-block;
+
+    padding: 5px 9px;
+
+    border-radius: 6px;
+
+    font-size: 12px;
 }
 
-/* Empty state */
+.priority.low {
+    background: #e8f7ed;
+    color: #2e7d32;
+}
 
-.empty-state {
+.priority.medium {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.priority.high {
+    background: #f8d7da;
+    color: #842029;
+}
+
+
+/* =====================================================
+   STATUS
+   ===================================================== */
+
+.status {
+    display: inline-block;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    background: #fff3cd;
+    color: #856404;
+
+    font-size: 12px;
+}
+
+.status.completed {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.status.pending {
+    background: #e2e3e5;
+    color: #41464b;
+}
+
+
+/* =====================================================
+   NOTES
+   ===================================================== */
+
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(280px, 1fr)
+    );
+
+    gap: 20px;
+}
+
+.note-card {
+    padding: 22px;
+}
+
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.note-card .subject {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.note-content {
+    margin-top: 15px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.important {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+
+/* =====================================================
+   SEARCH
+   ===================================================== */
+
+.search-box {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+.search-box form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-box input {
+    flex: 1;
+    min-width: 220px;
+    padding: 12px;
+
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.check-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+
+/* =====================================================
+   GOALS
+   ===================================================== */
+
+.goal-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(280px, 1fr)
+    );
+
+    gap: 20px;
+}
+
+.goal-card {
+    padding: 22px;
+}
+
+.goal-card p {
+    margin: 12px 0;
+}
+
+.progress-container {
+    width: 100%;
+    height: 12px;
+
+    margin: 10px 0 20px;
+
+    background: #eee;
+    border-radius: 10px;
+
+    overflow: hidden;
+}
+
+.progress-bar {
+    width: var(--progress);
+    height: 100%;
+
+    background: #4f46e5;
+    border-radius: 10px;
+}
+
+
+/* =====================================================
+   TIMER
+   ===================================================== */
+
+.timer-card {
+    padding: 40px;
     text-align: center;
-    padding: 40px 20px;
+    margin-bottom: 30px;
+}
+
+#timer {
+    margin-bottom: 25px;
+
+    font-size: 70px;
+    font-weight: bold;
+}
+
+.timer-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+
+/* =====================================================
+   ACHIEVEMENTS
+   ===================================================== */
+
+.achievement-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(240px, 1fr)
+    );
+
+    gap: 20px;
+    margin-top: 25px;
+}
+
+.achievement-card {
+    padding: 25px;
+    text-align: center;
+
+    border: 2px solid #eee;
+
+    opacity: 0.6;
+}
+
+.achievement-card.unlocked {
+    opacity: 1;
+    border-color: #4f46e5;
+}
+
+.achievement-icon {
+    margin-bottom: 10px;
+    font-size: 45px;
+}
+
+.achievement-card h2 {
+    margin: 10px 0;
+}
+
+.achievement-card p {
+    color: #666;
+    line-height: 1.5;
+}
+
+.achievement-status {
+    display: inline-block;
+
+    margin-top: 12px;
+    padding: 7px 12px;
+
+    border-radius: 20px;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.achievement-message {
+    margin-top: 25px;
+    text-align: center;
+}
+
+
+/* =====================================================
+   DASHBOARD QUICK ACTIONS
+   ===================================================== */
+
+.quick-actions {
+    display: grid;
+
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(180px, 1fr)
+    );
+
+    gap: 15px;
+}
+
+.quick-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    padding: 25px;
+
+    background: white;
+
+    border-radius: 12px;
+
+    color: #222;
+
+    text-align: center;
+    font-weight: bold;
+
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+}
+
+.quick-card:hover {
+    color: #4f46e5;
+}
+
+
+/* =====================================================
+   DASHBOARD LIST
+   ===================================================== */
+
+.dashboard-list {
+    overflow: hidden;
+}
+
+.list-item {
+    display: flex;
+    justify-content: space-between;
+
+    padding: 18px;
+
+    border-bottom: 1px solid #eee;
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+.list-item p {
+    margin-top: 5px;
+    color: #666;
+}
+
+
+/* =====================================================
+   EMPTY STATE
+   ===================================================== */
+
+.empty-box,
+.empty-state {
+    padding: 35px;
+
+    background: white;
+
+    border-radius: 12px;
+
+    text-align: center;
     color: #777;
 }
 
@@ -766,9 +743,76 @@ a {
     color: #555;
 }
 
-/* Mobile */
+
+/* =====================================================
+   MOTIVATION
+   ===================================================== */
+
+.motivation {
+    padding: 25px;
+    margin-top: 30px;
+}
+
+.motivation p {
+    margin-top: 8px;
+    color: #666;
+}
+
+
+/* =====================================================
+   REMINDER / ANALYTICS SUPPORT
+   ===================================================== */
+
+.reminder-list {
+    display: grid;
+    gap: 18px;
+}
+
+.reminder-card {
+    padding: 20px;
+
+    background: white;
+
+    border-left: 5px solid #4f46e5;
+    border-radius: 12px;
+
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+}
+
+.reminder-card.completed {
+    border-left-color: #198754;
+    opacity: 0.75;
+}
+
+
+/* =====================================================
+   RESPONSIVE DESIGN
+   ===================================================== */
 
 @media (max-width: 768px) {
+
+    .layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+    }
+
+    .sidebar nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .sidebar nav a {
+        flex: 1;
+        min-width: 130px;
+    }
+
+    .main {
+        padding: 20px;
+    }
 
     .form-grid {
         grid-template-columns: 1fr;
@@ -783,97 +827,7 @@ a {
         width: 100%;
     }
 
-    .task-actions a {
-        flex: 1;
-        text-align: center;
+    #timer {
+        font-size: 50px;
     }
-}
-.progress-container {
-    width: 100%;
-    height: 12px;
-    background: #e9ecef;
-    border-radius: 10px;
-    overflow: hidden;
-    margin: 10px 0 20px;
-}
-
-.progress-bar {
-    width: var(--progress);
-    height: 100%;
-    background: #6c63ff;
-    border-radius: 10px;
-    transition: width 0.3s ease;
-}
-/* =========================
-   ACHIEVEMENTS
-========================= */
-
-.achievement-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    margin-top: 25px;
-}
-
-.achievement-card {
-    background: white;
-    border-radius: 14px;
-    padding: 25px;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    border: 2px solid #eeeeee;
-}
-
-.achievement-card.unlocked {
-    border-color: #6c63ff;
-}
-
-.achievement-card.locked {
-    opacity: 0.6;
-}
-
-.achievement-icon {
-    font-size: 45px;
-    margin-bottom: 10px;
-}
-
-.achievement-card h2 {
-    margin: 10px 0;
-}
-
-.achievement-card p {
-    color: #666;
-    line-height: 1.5;
-}
-
-.achievement-status {
-    display: inline-block;
-    margin-top: 12px;
-    padding: 7px 12px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.achievement-message {
-    margin-top: 25px;
-    text-align: center;
-}
-
-
-@media (max-width: 900px) {
-
-    .achievement-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-}
-
-
-@media (max-width: 600px) {
-
-    .achievement-grid {
-        grid-template-columns: 1fr;
-    }
-
 }

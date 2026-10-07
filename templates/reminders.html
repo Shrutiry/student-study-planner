@@ -1,134 +1,376 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Reminders - Study Planner</title>
+    <title>Reminders - Student Study Planner</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
 
-</head>
+    <style>
+        /* ================================
+           REMINDER PAGE
+        ================================= */
 
+        .reminder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 15px;
+        }
+
+        .notification-btn {
+            background: #6c63ff;
+            color: white;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .notification-btn:hover {
+            background: #574fd6;
+        }
+
+        .notification-btn.enabled {
+            background: #28a745;
+        }
+
+        .notification-btn.denied {
+            background: #dc3545;
+        }
+
+        .notification-status {
+            margin-bottom: 20px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            background: #f3f4f6;
+            color: #444;
+            font-size: 14px;
+        }
+
+        .reminder-form {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+
+        .reminder-form h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ddd;
+            border-radius: 7px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .add-reminder-btn {
+            background: #6c63ff;
+            color: white;
+            border: none;
+            padding: 11px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .add-reminder-btn:hover {
+            background: #574fd6;
+        }
+
+        .reminder-list {
+            display: grid;
+            gap: 18px;
+        }
+
+        .reminder-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid #6c63ff;
+        }
+
+        .reminder-card.completed {
+            border-left-color: #28a745;
+            opacity: 0.75;
+        }
+
+        .reminder-card h3 {
+            margin: 0 0 10px;
+            font-size: 20px;
+        }
+
+        .reminder-info {
+            color: #555;
+            margin: 6px 0;
+        }
+
+        .reminder-status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .reminder-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .complete-btn {
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            padding: 8px 13px;
+            border-radius: 7px;
+            font-size: 13px;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            text-decoration: none;
+            padding: 8px 13px;
+            border-radius: 7px;
+            font-size: 13px;
+        }
+
+        .no-reminders {
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            text-align: center;
+            color: #777;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        /* ================================
+           ON-SCREEN REMINDER POPUP
+        ================================= */
+
+        #reminderPopup {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            width: 340px;
+            background: white;
+            border-left: 6px solid #6c63ff;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.20);
+            z-index: 9999;
+
+            display: none;
+
+            animation: reminderSlideIn 0.4s ease;
+        }
+
+        #reminderPopup.show {
+            display: block;
+        }
+
+        .popup-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .popup-message {
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .popup-close {
+            background: #6c63ff;
+            color: white;
+            border: none;
+            padding: 7px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        @keyframes reminderSlideIn {
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* ================================
+           MOBILE
+        ================================= */
+
+        @media (max-width: 600px) {
+
+            .reminder-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            #reminderPopup {
+                left: 15px;
+                right: 15px;
+                width: auto;
+            }
+        }
+    </style>
+</head>
 
 <body>
 
 <div class="layout">
 
+    <!-- ================================
+         SIDEBAR
+    ================================= -->
 
-    <!-- SIDEBAR -->
-
-    <aside class="sidebar">
-
-        <div class="logo">
-            📚 Study Planner
-        </div>
-
-        <nav>
-
-            <a href="/">🏠 Dashboard</a>
-
-            <a href="/planner">
-                📅 Study Planner
-            </a>
-
-            <a href="/notes">
-                📝 My Notes
-            </a>
-
-            <a href="/goals">
-                🎯 Goals
-            </a>
-
-            <a href="/reminders" class="active">
-                ⏰ Reminders
-            </a>
-
-            <a href="/timer">
-                ⏱️ Study Timer
-            </a>
-
-            <a href="/analytics">
-                📊 Analytics
-            </a>
-
-            <a href="/achievements">
-                🏆 Achievements
-            </a>
-
-        </nav>
-
-    </aside>
+    {% include '_sidebar.html' %}
 
 
-    <!-- MAIN CONTENT -->
+
+    <!-- ================================
+         MAIN CONTENT
+    ================================= -->
 
     <main class="main">
 
-        <h1>
-            ⏰ Reminders
-        </h1>
+        <div class="reminder-header">
 
-        <p>
-            Set reminders for your study activities.
-        </p>
+            <div>
+                <h1>🔔 Reminders</h1>
 
+                <p>
+                    Set reminders for your study activities.
+                </p>
+            </div>
 
-        <!-- ADD REMINDER -->
+            <button
+                id="notificationButton"
+                class="notification-btn"
+                onclick="enableNotifications()">
 
-        <div class="form-card">
+                🔔 Enable Notifications
 
-            <h2>
-                ➕ Add Reminder
-            </h2>
+            </button>
 
-            <form action="/add-reminder"
-                  method="POST">
-
-                <label>
-                    Reminder
-                </label>
-
-                <input
-                    type="text"
-                    name="title"
-                    placeholder="Example: Revise Python"
-                    required
-                >
+        </div>
 
 
-                <label>
-                    Date
-                </label>
+        <!-- Notification Status -->
 
-                <input
-                    type="date"
-                    name="reminder_date"
-                    required
-                >
+        <div id="notificationStatus"
+             class="notification-status">
+
+            Checking notification permission...
+
+        </div>
 
 
-                <label>
-                    Time
-                </label>
+        <!-- ================================
+             ADD REMINDER FORM
+        ================================= -->
 
-                <input
-                    type="time"
-                    name="reminder_time"
-                    required
-                >
+        <div class="reminder-form">
+
+            <h2>➕ Add Reminder</h2>
+
+            <form action="/add-reminder" method="POST">
+
+                <div class="form-group">
+
+                    <label for="title">
+                        Reminder Title
+                    </label>
+
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        placeholder="Example: Revise Python"
+                        required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="reminder_date">
+                        Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="reminder_date"
+                        name="reminder_date"
+                        required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="reminder_time">
+                        Time
+                    </label>
+
+                    <input
+                        type="time"
+                        id="reminder_time"
+                        name="reminder_time"
+                        required>
+
+                </div>
 
 
                 <button
                     type="submit"
-                    class="primary-btn">
+                    class="add-reminder-btn">
 
-                    🔔 Add Reminder
+                    ➕ Add Reminder
 
                 </button>
 
@@ -137,222 +379,551 @@
         </div>
 
 
-        <!-- REMINDERS -->
+        <!-- ================================
+             REMINDER LIST
+        ================================= -->
 
-        <section class="section">
+        <h2>📋 My Reminders</h2>
 
-            <h2>
-                🔔 Your Reminders
-            </h2>
+        {% if reminders %}
 
-
-            {% if reminders %}
-
-            <div class="task-grid">
+            <div class="reminder-list">
 
                 {% for reminder in reminders %}
 
-                <div class="task-card">
+                    <div
+                        class="reminder-card
+                        {% if reminder['status'] == 'Completed' %}
+                            completed
+                        {% endif %}"
+                        data-reminder-id="{{ reminder['id'] }}">
 
-                    <h3>
-                        {{ reminder["title"] }}
-                    </h3>
+                        <h3>
+                            🔔 {{ reminder['title'] }}
+                        </h3>
 
+                        <p class="reminder-info">
+                            📅
+                            <strong>Date:</strong>
+                            {{ reminder['reminder_date'] }}
+                        </p>
 
-                    <p>
-                        📅 {{ reminder["reminder_date"] }}
-                    </p>
-
-
-                    <p>
-                        ⏰ {{ reminder["reminder_time"] }}
-                    </p>
-
-
-                    <p>
-                        Status:
-
-                        <strong>
-                            {{ reminder["status"] }}
-                        </strong>
-
-                    </p>
+                        <p class="reminder-info">
+                            ⏰
+                            <strong>Time:</strong>
+                            {{ reminder['reminder_time'] }}
+                        </p>
 
 
-                    {% if reminder["status"] != "Completed" %}
+                        {% if reminder['status'] == 'Completed' %}
 
-                    <a
-                        href="/complete-reminder/{{ reminder['id'] }}"
-                        class="success-btn">
+                            <span class="reminder-status status-completed">
+                                ✅ Completed
+                            </span>
 
-                        ✅ Complete
+                        {% else %}
 
-                    </a>
+                            <span class="reminder-status status-pending">
+                                ⏳ Pending
+                            </span>
 
-                    {% endif %}
+                        {% endif %}
 
 
-                    <a
-                        href="/delete-reminder/{{ reminder['id'] }}"
-                        class="delete-btn"
-                        onclick="return confirm('Delete this reminder?')">
+                        <div class="reminder-actions">
 
-                        🗑️ Delete
+                            {% if reminder['status'] != 'Completed' %}
 
-                    </a>
+                                <a
+                                    href="/complete-reminder/{{ reminder['id'] }}"
+                                    class="complete-btn">
 
-                </div>
+                                    ✅ Complete
+
+                                </a>
+
+                            {% endif %}
+
+
+                            <a
+                                href="/delete-reminder/{{ reminder['id'] }}"
+                                class="delete-btn"
+                                onclick="return confirm('Delete this reminder?');">
+
+                                🗑️ Delete
+
+                            </a>
+
+                        </div>
+
+                    </div>
 
                 {% endfor %}
 
             </div>
 
+        {% else %}
 
-            {% else %}
+            <div class="no-reminders">
 
-            <div class="empty-box">
+                <h3>📭 No reminders yet</h3>
 
-                No reminders yet.
+                <p>
+                    Add your first study reminder above.
+                </p>
 
             </div>
 
-            {% endif %}
-
-        </section>
+        {% endif %}
 
     </main>
 
 </div>
 
 
-<!-- =========================
-     BROWSER NOTIFICATIONS
-========================= -->
+<!-- ================================
+     ON-SCREEN POPUP
+================================= -->
+
+<div id="reminderPopup">
+
+    <div class="popup-title">
+        🔔 Study Reminder
+    </div>
+
+    <div
+        id="popupMessage"
+        class="popup-message">
+
+        It's time to study!
+
+    </div>
+
+    <button
+        class="popup-close"
+        onclick="closeReminderPopup()">
+
+        Close
+
+    </button>
+
+</div>
+
+
+<!-- ================================
+     JAVASCRIPT
+================================= -->
 
 <script>
 
-    // Ask the browser for notification permission
-    function requestNotificationPermission() {
+    /*
+     * Convert Flask reminders into
+     * safe JavaScript objects.
+     */
 
-        if ("Notification" in window) {
+    const reminders = [
 
-            if (Notification.permission === "default") {
+        {% for reminder in reminders %}
 
-                Notification.requestPermission();
+        {
+            id: {{ reminder["id"] }},
 
-            }
+            title: {{ reminder["title"]|tojson }},
 
+            date: {{ reminder["reminder_date"]|tojson }},
+
+            time: {{ reminder["reminder_time"]|tojson }},
+
+            status: {{ reminder["status"]|tojson }}
         }
+
+        {% if not loop.last %},{% endif %}
+
+        {% endfor %}
+
+    ];
+
+
+    /*
+     * Local storage key.
+     *
+     * This prevents the same reminder
+     * from displaying again and again.
+     */
+
+    function reminderAlreadyShown(id) {
+
+        return localStorage.getItem(
+            "reminder_shown_" + id
+        ) === "true";
 
     }
 
 
-    // Show notification
-    function showReminderNotification(title, reminderId) {
+    function markReminderAsShown(id) {
 
-        if (!("Notification" in window)) {
-            return;
-        }
-
-        if (Notification.permission !== "granted") {
-            return;
-        }
-
-
-        new Notification("📚 Study Planner Reminder", {
-
-            body: "⏰ It's time to study: " + title,
-
-            icon: "📚"
-
-        });
-
-
-        // Remember that this reminder was already shown
         localStorage.setItem(
-            "reminder_" + reminderId,
-            "shown"
+            "reminder_shown_" + id,
+            "true"
         );
 
     }
 
 
-    // Check reminders
+    /*
+     * Enable browser notifications.
+     */
+
+    async function enableNotifications() {
+
+        const button =
+            document.getElementById("notificationButton");
+
+        const status =
+            document.getElementById("notificationStatus");
+
+
+        /*
+         * Check whether browser supports
+         * Notification API.
+         */
+
+        if (!("Notification" in window)) {
+
+            status.innerHTML =
+                "❌ Your browser does not support notifications.";
+
+            button.classList.add("denied");
+
+            return;
+
+        }
+
+
+        try {
+
+            const permission =
+                await Notification.requestPermission();
+
+
+            updateNotificationStatus(permission);
+
+
+            if (permission === "granted") {
+
+                /*
+                 * Test notification
+                 * immediately after permission.
+                 */
+
+                new Notification(
+                    "📚 Study Planner",
+                    {
+                        body:
+                            "✅ Notifications are enabled!"
+                    }
+                );
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Notification permission error:",
+                error
+            );
+
+            status.innerHTML =
+                "❌ Could not enable notifications.";
+
+        }
+
+    }
+
+
+    /*
+     * Update notification button/status.
+     */
+
+    function updateNotificationStatus(permission) {
+
+        const button =
+            document.getElementById("notificationButton");
+
+        const status =
+            document.getElementById("notificationStatus");
+
+
+        if (permission === "granted") {
+
+            button.innerHTML =
+                "✅ Notifications Enabled";
+
+            button.classList.remove("denied");
+
+            button.classList.add("enabled");
+
+            status.innerHTML =
+                "🟢 Browser notifications are enabled. Keep this page open for automatic reminders.";
+
+        }
+
+
+        else if (permission === "denied") {
+
+            button.innerHTML =
+                "❌ Notifications Blocked";
+
+            button.classList.remove("enabled");
+
+            button.classList.add("denied");
+
+            status.innerHTML =
+                "🔴 Notifications are blocked. Allow notifications for this website in your browser settings.";
+
+        }
+
+
+        else {
+
+            button.innerHTML =
+                "🔔 Enable Notifications";
+
+            button.classList.remove("enabled");
+            button.classList.remove("denied");
+
+            status.innerHTML =
+                "🟡 Click 'Enable Notifications' to allow study reminders.";
+
+        }
+
+    }
+
+
+    /*
+     * Show visible popup on the webpage.
+     */
+
+    function showReminderPopup(title) {
+
+        const popup =
+            document.getElementById("reminderPopup");
+
+        const message =
+            document.getElementById("popupMessage");
+
+
+        message.innerHTML =
+            "⏰ It's time to study: <strong>"
+            + escapeHtml(title)
+            + "</strong>";
+
+
+        popup.classList.add("show");
+
+
+        /*
+         * Automatically close after
+         * 10 seconds.
+         */
+
+        setTimeout(function() {
+
+            popup.classList.remove("show");
+
+        }, 10000);
+
+    }
+
+
+    /*
+     * Close visible popup.
+     */
+
+    function closeReminderPopup() {
+
+        document
+            .getElementById("reminderPopup")
+            .classList.remove("show");
+
+    }
+
+
+    /*
+     * Escape reminder title before
+     * inserting into HTML.
+     */
+
+    function escapeHtml(text) {
+
+        const div =
+            document.createElement("div");
+
+        div.textContent = text;
+
+        return div.innerHTML;
+
+    }
+
+
+    /*
+     * Check reminders.
+     */
+
     function checkReminders() {
 
         const now = new Date();
 
 
-        {% for reminder in reminders %}
-
-        {% if reminder["status"] != "Completed" %}
-
-        {
-
-            const reminderId = "{{ reminder['id'] }}";
-
-            const reminderTitle =
-                "{{ reminder['title']|replace('\\', '\\\\')|replace('"', '\\"') }}";
+        reminders.forEach(function(reminder) {
 
 
-            const reminderDate =
-                "{{ reminder['reminder_date'] }}";
+            /*
+             * Ignore completed reminders.
+             */
 
-            const reminderTime =
-                "{{ reminder['reminder_time'] }}";
-
-
-            const reminderDateTime =
-                new Date(
-                    reminderDate + "T" + reminderTime
-                );
-
-
-            const alreadyShown =
-                localStorage.getItem(
-                    "reminder_" + reminderId
-                );
-
-
-            // Check if reminder time has arrived
             if (
-                now >= reminderDateTime &&
-                !alreadyShown
+                reminder.status === "Completed"
             ) {
 
-                showReminderNotification(
-                    reminderTitle,
-                    reminderId
-                );
+                return;
 
             }
 
-        }
 
-        {% endif %}
+            /*
+             * Create reminder date/time.
+             */
 
-        {% endfor %}
+            const reminderDateTime =
+                new Date(
+                    reminder.date
+                    + "T"
+                    + reminder.time
+                    + ":00"
+                );
+
+
+            /*
+             * Check whether reminder is due.
+             */
+
+            if (
+                now >= reminderDateTime
+                &&
+                !reminderAlreadyShown(reminder.id)
+            ) {
+
+                console.log(
+                    "Reminder is due:",
+                    reminder.title
+                );
+
+
+                /*
+                 * Mark first so it
+                 * cannot repeat.
+                 */
+
+                markReminderAsShown(
+                    reminder.id
+                );
+
+
+                /*
+                 * ALWAYS show visible
+                 * on-screen popup.
+                 */
+
+                showReminderPopup(
+                    reminder.title
+                );
+
+
+                /*
+                 * Also show browser
+                 * notification if allowed.
+                 */
+
+                if (
+                    "Notification" in window
+                    &&
+                    Notification.permission === "granted"
+                ) {
+
+                    try {
+
+                        new Notification(
+                            "📚 Study Planner Reminder",
+                            {
+                                body:
+                                    "⏰ It's time to study: "
+                                    + reminder.title
+                            }
+                        );
+
+                    } catch (error) {
+
+                        console.error(
+                            "Browser notification error:",
+                            error
+                        );
+
+                    }
+
+                }
+
+            }
+
+        });
 
     }
 
 
-    // Ask for permission when page opens
-    requestNotificationPermission();
+    /*
+     * Check notification permission
+     * when page loads.
+     */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function() {
+
+            if ("Notification" in window) {
+
+                updateNotificationStatus(
+                    Notification.permission
+                );
+
+            } else {
+
+                updateNotificationStatus(
+                    "unsupported"
+                );
+
+            }
 
 
-    // Check immediately
-    checkReminders();
+            /*
+             * Check immediately.
+             */
+
+            checkReminders();
 
 
-    // Check every 10 seconds
-    setInterval(
-        checkReminders,
-        10000
+            /*
+             * Then check every 5 seconds.
+             */
+
+            setInterval(
+                checkReminders,
+                5000
+            );
+
+        }
     );
 
 </script>
 
-
 </body>
-
 </html>
