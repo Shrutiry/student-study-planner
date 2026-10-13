@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Timetable - Student Study Planner</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f6f4ff;
+            color: #30284a;
+            font-family: Arial, sans-serif;
+}
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #7359c7;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            margin: 20px 0;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px #0000000d;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        input, select, textarea {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd6f2;
+            border-radius: 8px;
+            background: white;
+        }
+
+        textarea {
+            min-height: 75px;
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        button {
+            padding: 11px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .add-btn {
+            background: #7359c7;
+            color: white;
+        }
+
+        .entry {
+            margin: 12px 0;
+            padding: 15px;
+            border-left: 4px solid #8973d2;
+            background: #faf9ff;
+            border-radius: 8px;
+        }
+
+        .entry h3 {
+            margin-top: 8px;
+        }
+
+        .entry p {
+            color: #686078;
+        }
+
+        .type {
+            color: #654bb3;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .delete-btn {
+            background: #ffe9e9;
+            color: #b52d2d;
+        }
+
+        .empty {
+            color: #817990;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full {
+                grid-column: auto;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+    <div class="layout">
+
+        {% include '_sidebar.html' %}
+
+        <main class="main">
+        <div class="container">
+
+    <h1><i class="fa-solid fa-calendar-week"></i> My Timetable</h1>
+    <p>Manage your college schedule and personal study sessions.</p>
+
+    <div class="card">
+        <h2>Add Timetable Entry</h2>
+
+        <form action="/timetable/add" method="POST">
+            <div class="form-grid">
+
+                <select name="entry_type" required>
+                    <option value="">Select activity type</option>
+                    <option value="College">College</option>
+                    <option value="Self Study">Self Study</option>
+                    <option value="Break">Break</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <select name="day" required>
+                    <option value="">Select day</option>
+                    {% for day in days %}
+                    <option value="{{ day }}">{{ day }}</option>
+                    {% endfor %}
+                </select>
+
+                <input type="text" name="title"
+                       placeholder="Subject or activity name" required>
+
+                <input type="text" name="location"
+                       placeholder="Location (optional)">
+
+                <label>
+                    Start time
+                    <input type="time" name="start_time" required>
+                </label>
+
+                <label>
+                    End time
+                    <input type="time" name="end_time" required>
+                </label>
+
+                <input type="text" name="teacher"
+                       placeholder="Teacher (optional)">
+
+                <textarea name="notes" class="full"
+                          placeholder="Notes (optional)"></textarea>
+
+                <button type="submit" class="add-btn full">
+                    <i class="fa-solid fa-plus"></i> Add to Timetable
+                </button>
+
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2><i class="fa-solid fa-calendar-days"></i> Weekly Schedule</h2>
+
+        {% for day in days %}
+            <h3>{{ day }}</h3>
+
+            {% set day_entries = entries
+                | selectattr('day', 'equalto', day) | list %}
+
+            {% if day_entries %}
+                {% for entry in day_entries %}
+                    <div class="entry">
+                        <span class="type">{{ entry['entry_type'] }}</span>
+                        <h3>{{ entry['title'] }}</h3>
+
+                        <p>
+                            <i class="fa-regular fa-clock"></i>
+                            {{ entry['start_time'] }} -
+                            {{ entry['end_time'] }}
+                        </p>
+
+                        {% if entry['location'] %}
+                            <p>Location: {{ entry['location'] }}</p>
+                        {% endif %}
+
+                        {% if entry['teacher'] %}
+                            <p>Teacher: {{ entry['teacher'] }}</p>
+                        {% endif %}
+
+                        {% if entry['notes'] %}
+                            <p>{{ entry['notes'] }}</p>
+                        {% endif %}
+
+                        <form
+                            action="/timetable/delete/{{ entry['id'] }}"
+                            method="POST"
+                            onsubmit="return confirm('Delete this entry?');">
+
+                            <button type="submit" class="delete-btn">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="empty">No entries added for {{ day }}.</p>
+            {% endif %}
+        {% endfor %}
+    
+            </div>
+        </main>
+    </div>
+</body>
+</html>
