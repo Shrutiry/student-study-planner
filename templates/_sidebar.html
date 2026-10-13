@@ -17,6 +17,13 @@
             <span>Study Planner</span>
         </a>
 
+       
+        <a href="/timetable" class="{% if request.path == '/timetable' %}active{% endif %}">
+            <i class="fa-solid fa-calendar-week"></i>
+            <span>Timetable</span>
+        </a>
+
+
         <a href="/notes" class="{% if request.path == '/notes' %}active{% endif %}">
             <i class="fa-solid fa-note-sticky"></i>
             <span>My Notes</span>

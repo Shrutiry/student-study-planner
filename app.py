@@ -84,6 +84,22 @@ def init_db():
         )
     """)
 
+    # ---------------- TIMETABLE ----------------
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS timetable (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            entry_type TEXT NOT NULL,
+            day TEXT NOT NULL,
+            title TEXT NOT NULL,
+            start_time TEXT NOT NULL,
+            end_time TEXT NOT NULL,
+            location TEXT DEFAULT '',
+            teacher TEXT DEFAULT '',
+            notes TEXT DEFAULT ''
+        )
+    """)
+
     connection.commit()
     connection.close()
 
@@ -204,6 +220,92 @@ def add_task():
     connection.close()
 
     return redirect("/planner")
+
+# =========================================================
+# TIMETABLE
+# =========================================================
+
+@app.route("/timetable")
+def timetable():
+
+    connection = get_db()
+
+    entries = connection.execute("""
+        SELECT *
+        FROM timetable
+        ORDER BY day, start_time
+    """).fetchall()
+
+    connection.close()
+
+    days = [
+        "Monday", "Tuesday", "Wednesday",
+        "Thursday", "Friday", "Saturday", "Sunday"
+    ]
+
+    return render_template(
+        "timetable.html",
+        entries=entries,
+        days=days
+    )
+
+
+# =========================================================
+# ADD TIMETABLE ENTRY
+# =========================================================
+
+@app.route("/timetable/add", methods=["POST"])
+def add_timetable_entry():
+
+    entry_type = request.form["entry_type"]
+    day = request.form["day"]
+    title = request.form["title"]
+    start_time = request.form["start_time"]
+    end_time = request.form["end_time"]
+
+    location = request.form.get("location", "")
+    teacher = request.form.get("teacher", "")
+    notes = request.form.get("notes", "")
+
+    if start_time >= end_time:
+        return redirect("/timetable")
+
+    connection = get_db()
+
+    connection.execute("""
+        INSERT INTO timetable
+        (entry_type, day, title, start_time, end_time,
+         location, teacher, notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        entry_type, day, title, start_time, end_time,
+        location, teacher, notes
+    ))
+
+    connection.commit()
+    connection.close()
+
+    return redirect("/timetable")
+
+
+# =========================================================
+# DELETE TIMETABLE ENTRY
+# =========================================================
+
+@app.route("/timetable/delete/<int:entry_id>", methods=["POST"])
+def delete_timetable_entry(entry_id):
+
+    connection = get_db()
+
+    connection.execute("""
+        DELETE FROM timetable
+        WHERE id = ?
+    """, (entry_id,))
+
+    connection.commit()
+    connection.close()
+
+    return redirect("/timetable")
 
 
 # =========================================================
