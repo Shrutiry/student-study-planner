@@ -1,4 +1,8 @@
 
+```html
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
 <aside class="sidebar">
     <div class="logo">
         <i class="fa-solid fa-graduation-cap"></i>
@@ -7,51 +11,40 @@
 
     <nav>
         <a href="/" class="{% if request.path == '/' %}active{% endif %}">
-            <i class="fa-solid fa-house"></i>
-            <span>Dashboard</span>
+            <i class="fa-solid fa-house"></i><span>Dashboard</span>
         </a>
 
         <a href="/planner" class="{% if request.path == '/planner' %}active{% endif %}">
-            <i class="fa-solid fa-calendar-days"></i>
-            <span>Study Planner</span>
+            <i class="fa-solid fa-calendar-days"></i><span>Study Planner</span>
         </a>
 
         <a href="/timetable" class="{% if request.path == '/timetable' %}active{% endif %}">
-            <i class="fa-solid fa-calendar-week"></i>
-            <span>Timetable</span>
+            <i class="fa-solid fa-calendar-week"></i><span>Timetable</span>
         </a>
 
         <a href="/notes" class="{% if request.path == '/notes' %}active{% endif %}">
-            <i class="fa-solid fa-note-sticky"></i>
-            <span>My Notes</span>
+            <i class="fa-solid fa-note-sticky"></i><span>My Notes</span>
         </a>
 
         <a href="/goals" class="{% if request.path == '/goals' %}active{% endif %}">
-            <i class="fa-solid fa-bullseye"></i>
-            <span>Goals</span>
+            <i class="fa-solid fa-bullseye"></i><span>Goals</span>
         </a>
 
         <a href="/reminders" class="{% if request.path == '/reminders' %}active{% endif %}">
-            <i class="fa-solid fa-bell"></i>
-            <span>Reminders</span>
+            <i class="fa-solid fa-bell"></i><span>Reminders</span>
         </a>
 
         <a href="/timer" class="{% if request.path == '/timer' %}active{% endif %}">
-            <i class="fa-solid fa-stopwatch"></i>
-            <span>Study Timer</span>
+            <i class="fa-solid fa-stopwatch"></i><span>Study Timer</span>
         </a>
 
         <a href="/analytics" class="{% if request.path == '/analytics' %}active{% endif %}">
-            <i class="fa-solid fa-chart-column"></i>
-            <span>Analytics</span>
+            <i class="fa-solid fa-chart-column"></i><span>Analytics</span>
         </a>
 
         <a href="/achievements" class="{% if request.path == '/achievements' %}active{% endif %}">
-            <i class="fa-solid fa-trophy"></i>
-            <span>Achievements</span>
+            <i class="fa-solid fa-trophy"></i><span>Achievements</span>
         </a>
     </nav>
 </aside>
-
-
-
+```

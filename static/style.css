@@ -831,3 +831,19 @@ button:hover,
         font-size: 50px;
     }
 }
+/* Sidebar icon visibility fix */
+.sidebar .logo i,
+.sidebar nav a i {
+    display: inline-block;
+    width: 22px;
+    min-width: 22px;
+    text-align: center;
+    font-family: "Font Awesome 6 Free";
+    font-style: normal;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.sidebar nav a {
+    align-items: center;
+}
