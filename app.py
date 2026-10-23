@@ -746,6 +746,230 @@ def delete_note(note_id):
 
     return redirect("/notes")
 
+# =========================================================
+# NOTES
+# =========================================================
+
+@app.route("/notes")
+@login_required
+def notes():
+
+    search = request.args.get("search", "")
+    important = request.args.get("important", "")
+
+    connection = get_db()
+
+    query = """
+        SELECT *
+        FROM notes
+        WHERE 1=1
+    """
+
+    parameters = []
+
+    if search:
+
+        query += """
+            AND (
+                title LIKE ?
+                OR subject LIKE ?
+                OR content LIKE ?
+            )
+        """
+
+        parameters.extend([
+            "%" + search + "%",
+            "%" + search + "%",
+            "%" + search + "%"
+        ])
+
+    if important == "1":
+
+        query += """
+            AND important = 1
+        """
+
+    query += """
+        ORDER BY created_at DESC
+    """
+
+    notes = connection.execute(
+        query,
+        parameters
+    ).fetchall()
+
+    connection.close()
+
+    return render_template(
+        "notes.html",
+        notes=notes,
+        search=search,
+        important=important
+    )
+
+
+# =========================================================
+# ADD NOTE
+# =========================================================
+
+@app.route("/add-note", methods=["POST"])
+def add_note():
+
+    title = request.form["title"]
+    subject = request.form["subject"]
+    content = request.form["content"]
+
+    important = 1 if request.form.get("important") else 0
+
+    connection = get_db()
+
+    connection.execute("""
+        INSERT INTO notes
+        (title, subject, content, important)
+        VALUES (?, ?, ?, ?)
+    """, (
+        title,
+        subject,
+        content,
+        important
+    ))
+
+    connection.commit()
+    connection.close()
+
+    return redirect("/notes")
+
+
+# =========================================================
+# EDIT NOTE
+# =========================================================
+
+@app.route("/edit-note/<int:note_id>")
+def edit_note(note_id):
+
+    connection = get_db()
+
+    note = connection.execute("""
+        SELECT *
+        FROM notes
+        WHERE id = ?
+    """, (note_id,)).fetchone()
+
+    connection.close()
+
+    return render_template(
+        "edit_note.html",
+        note=note
+    )
+
+
+# =========================================================
+# UPDATE NOTE
+# =========================================================
+
+@app.route("/update-note/<int:note_id>", methods=["POST"])
+def update_note(note_id):
+
+    title = request.form["title"]
+    subject = request.form["subject"]
+    content = request.form["content"]
+
+    important = 1 if request.form.get("important") else 0
+
+    connection = get_db()
+
+    connection.execute("""
+        UPDATE notes
+        SET title = ?,
+            subject = ?,
+            content = ?,
+            important = ?
+        WHERE id = ?
+    """, (
+        title,
+        subject,
+        content,
+        important,
+        note_id
+    ))
+
+    connection.commit()
+    connection.close()
+
+    return redirect("/notes")
+
+
+# =========================================================
+# DELETE NOTE
+# =========================================================
+
+@app.route("/delete-note/<int:note_id>")
+def delete_note(note_id):
+
+    connection = get_db()
+
+    connection.execute("""
+        DELETE FROM notes
+        WHERE id = ?
+    """, (note_id,))
+
+    connection.commit()
+    connection.close()
+
+    return redirect("/notes")
+
+
+# =========================================================
+# NOTES QUIZ
+# =========================================================
+
+@app.route("/notes-quiz")
+@login_required
+def notes_quiz():
+
+    questions = [
+        {
+            "question": "What does CPU stand for?",
+            "options": [
+                "Central Processing Unit",
+                "Computer Personal Unit",
+                "Central Program Utility",
+                "Control Processing User"
+            ],
+            "answer": 0
+        },
+        {
+            "question": "Which language is commonly used with Flask?",
+            "options": ["Java", "Python", "C++", "PHP"],
+            "answer": 1
+        },
+        {
+            "question": "Which of these is a database?",
+            "options": ["HTML", "CSS", "SQLite", "Font Awesome"],
+            "answer": 2
+        },
+        {
+            "question": "What does HTML stand for?",
+            "options": [
+                "HyperText Markup Language",
+                "HighText Machine Language",
+                "HyperTool Multi Language",
+                "Home Tool Markup Language"
+            ],
+            "answer": 0
+        },
+        {
+            "question": "Which symbol starts a Python comment?",
+            "options": ["//", "#", "/*", "<!--"],
+            "answer": 1
+        }
+    ]
+
+    return render_template(
+        "notes_quiz.html",
+        questions=questions
+    )
+
 
 # =========================================================
 # GOALS
