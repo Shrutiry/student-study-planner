@@ -464,11 +464,11 @@ def delete_timetable_entry(entry_id):
 
 
   
-# =========================================================
 # COMPLETE TASK
 # =========================================================
 
-@app.route("/complete-task/<int:task_id>")
+@app.route("/complete-task/<int:task_id>", methods=["POST"])
+@login_required
 def complete_task(task_id):
 
     connection = get_db()
@@ -476,33 +476,34 @@ def complete_task(task_id):
     connection.execute("""
         UPDATE tasks
         SET status = 'Completed'
-        WHERE id = ?
-    """, (task_id,))
+        WHERE id = ? AND user_id = ?
+    """, (task_id, session["user_id"]))
 
     connection.commit()
     connection.close()
 
-    return redirect("/planner")
+    return redirect(url_for("planner"))
 
 
 # =========================================================
 # DELETE TASK
 # =========================================================
 
-@app.route("/delete-task/<int:task_id>")
+@app.route("/delete-task/<int:task_id>", methods=["POST"])
+@login_required
 def delete_task(task_id):
 
     connection = get_db()
 
     connection.execute("""
         DELETE FROM tasks
-        WHERE id = ?
-    """, (task_id,))
+        WHERE id = ? AND user_id = ?
+    """, (task_id, session["user_id"]))
 
     connection.commit()
     connection.close()
 
-    return redirect("/planner")
+    return redirect(url_for("planner"))
 
 
 # =========================================================
@@ -510,6 +511,7 @@ def delete_task(task_id):
 # =========================================================
 
 @app.route("/edit-task/<int:task_id>")
+@login_required
 def edit_task(task_id):
 
     connection = get_db()
@@ -517,10 +519,13 @@ def edit_task(task_id):
     task = connection.execute("""
         SELECT *
         FROM tasks
-        WHERE id = ?
-    """, (task_id,)).fetchone()
+        WHERE id = ? AND user_id = ?
+    """, (task_id, session["user_id"])).fetchone()
 
     connection.close()
+
+    if task is None:
+        return "Task not found or access denied.", 404
 
     return render_template(
         "edit_task.html",
@@ -533,6 +538,7 @@ def edit_task(task_id):
 # =========================================================
 
 @app.route("/update-task/<int:task_id>", methods=["POST"])
+@login_required
 def update_task(task_id):
 
     subject = request.form["subject"]
@@ -550,20 +556,22 @@ def update_task(task_id):
             study_date = ?,
             study_time = ?,
             priority = ?
-        WHERE id = ?
+        WHERE id = ? AND user_id = ?
     """, (
         subject,
         topic,
         study_date,
         study_time,
         priority,
-        task_id
+        task_id,
+        session["user_id"]
     ))
 
     connection.commit()
     connection.close()
 
-    return redirect("/planner")
+    return redirect(url_for("planner"))
+```
 
 
 # =========================================================
