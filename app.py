@@ -326,11 +326,12 @@ def planner():
     connection = get_db()
     cursor = connection.cursor()
 
-    cursor.execute("""
-        SELECT *
-        FROM tasks
-        ORDER BY study_date, study_time
-    """)
+   cursor.execute("""
+    SELECT *
+    FROM tasks
+    WHERE user_id = ?
+    ORDER BY study_date, study_time
+""", (session["user_id"],)) 
 
     tasks = cursor.fetchall()
 
