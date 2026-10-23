@@ -9,6 +9,12 @@
           content="width=device-width, initial-scale=1.0">
 
     <title>My Notes</title>
+    
+<a href="{{ url_for('notes_quiz') }}" class="btn-add">
+    <i class="fa-solid fa-circle-question"></i>
+    Take Study Quiz
+</a>
+
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
