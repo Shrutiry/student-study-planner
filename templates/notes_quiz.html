@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Quiz | Student Study Planner</title>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 30px 16px;
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            color: #263247;
+        }
+
+        .quiz-container {
+            max-width: 720px;
+            margin: 20px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 5px 22px rgba(0,0,0,0.08);
+        }
+
+        h1 { color: #4f46a5; margin-top: 0; }
+        .subtitle { color: #687386; margin-bottom: 24px; }
+
+        .question {
+            padding: 20px 0;
+            border-bottom: 1px solid #e7eaf1;
+        }
+
+        .question h3 { font-size: 17px; }
+
+        .option {
+            display: block;
+            padding: 11px;
+            margin: 8px 0;
+            background: #f6f7fc;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .option:hover { background: #ecebff; }
+        .option input { margin-right: 9px; }
+
+        button, .back-link {
+            display: inline-block;
+            margin-top: 22px;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            background: #4f46a5;
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .back-link { margin-left: 8px; background: #64748b; }
+        #result { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <main class="quiz-container">
+        <h1><i class="fa-solid fa-circle-question"></i> Study Quiz</h1>
+        <p class="subtitle">Test your computer-science knowledge.</p>
+
+        <form id="quizForm">
+            {% for question in questions %}
+                <section class="question">
+                    <h3>{{ loop.index }}. {{ question.question }}</h3>
+
+                    {% for option in question.options %}
+                        <label class="option">
+                            <input type="radio"
+                                   name="q{{ loop.index0 }}"
+                                   value="{{ loop.index0 }}">
+                            {{ option }}
+                        </label>
+                    {% endfor %}
+                </section>
+            {% endfor %}
+
+            <button type="submit">
+                <i class="fa-solid fa-check"></i> Submit Quiz
+            </button>
+            <a href="{{ url_for('notes') }}" class="back-link">
+                Back to Notes
+            </a>
+        </form>
+
+        <div id="result" role="status"></div>
+    </main>
+
+    <script>
+        const questions = {{ questions | tojson }};
+
+        document.getElementById("quizForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            let score = 0;
+            let unanswered = 0;
+
+            questions.forEach((question, index) => {
+                const selected = document.querySelector(
+                    'input[name="q' + index + '"]:checked'
+                );
+
+                if (!selected) {
+                    unanswered++;
+                } else if (Number(selected.value) === question.answer) {
+                    score++;
+                }
+            });
+
+            const result = document.getElementById("result");
+
+            result.textContent = unanswered > 0
+                ? "You scored " + score + "/" + questions.length +
+                  ". " + unanswered + " question(s) unanswered."
+                : "Your score: " + score + "/" + questions.length +
+                  (score === questions.length
+                    ? " — Excellent work!"
+                    : " — Keep practising!");
+        });
+    </script>
+</body>
+</html>
