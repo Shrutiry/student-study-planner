@@ -1,9 +1,21 @@
-from flask import Flask, render_template, request, redirect
+from flask import (
+    Flask, render_template, request, redirect,
+    session, url_for
+)
+from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 from datetime import date
+from functools import wraps
 
 app = Flask(__name__)
-
+app.secret_key = "change-this-to-a-long-random-secret"
+def login_required(view_function):
+    @wraps(view_function)
+    def wrapped_view(*args, **kwargs):
+        if "user_id" not in session:
+            return redirect(url_for("login"))
+        return view_function(*args, **kwargs)
+    return wrapped_view
 DATABASE = "database.db"
 
 
@@ -33,6 +45,16 @@ def init_db():
             study_time TEXT,
             priority TEXT DEFAULT 'Medium',
             status TEXT DEFAULT 'Pending'
+        )
+    """)
+     # ---------------- USERS ----------------
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL
         )
     """)
 
@@ -100,15 +122,145 @@ def init_db():
         )
     """)
 
+    # ---------------- USER DATA OWNERSHIP ----------------
+    # Add user_id to existing tables without deleting records.
+    # Assign existing records to Shruti's account (ID 2).
+
+    tables = [
+        "tasks",
+        "notes",
+        "goals",
+        "reminders",
+        "study_sessions",
+        "timetable"
+    ]
+
+    # Confirm the account exists before migrating records.
+    owner = cursor.execute(
+        "SELECT id FROM users WHERE id = ?", (2,)
+    ).fetchone()
+
+    if owner is None:
+        connection.close()
+        raise RuntimeError(
+            "Account ID 2 was not found. Database migration stopped."
+        )
+
+    for table in tables:
+        columns = [
+            row["name"]
+            for row in cursor.execute(
+                f"PRAGMA table_info({table})"
+            ).fetchall()
+        ]
+
+        if "user_id" not in columns:
+            cursor.execute(
+                f"ALTER TABLE {table} ADD COLUMN user_id INTEGER"
+            )
+
+        # Existing records have no owner yet, so assign them to Shruti.
+        cursor.execute(
+            f"UPDATE {table} SET user_id = ? WHERE user_id IS NULL",
+            (2,)
+        )
+
     connection.commit()
     connection.close()
 
+
+# =========================================================
+# LOGIN AND REGISTRATION
+# =========================================================
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        if not name or not email or len(password) < 8:
+            return render_template(
+                "register.html",
+                error="Enter your name, email, and a password of at least 8 characters."
+            )
+
+        connection = get_db()
+
+        try:
+            connection.execute("""
+                INSERT INTO users (name, email, password_hash)
+                VALUES (?, ?, ?)
+            """, (
+                name,
+                email,
+                generate_password_hash(password)
+            ))
+            connection.commit()
+
+            user = connection.execute(
+                "SELECT id, name FROM users WHERE email = ?",
+                (email,)
+            ).fetchone()
+
+            session.clear()
+            session["user_id"] = user["id"]
+            session["user_name"] = user["name"]
+
+            return redirect(url_for("home"))
+
+        except sqlite3.IntegrityError:
+            return render_template(
+                "register.html",
+                error="This email is already registered. Please log in."
+            )
+        finally:
+            connection.close()
+
+    return render_template("register.html")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        connection = get_db()
+        try:
+            user = connection.execute(
+                "SELECT * FROM users WHERE email = ?",
+                (email,)
+            ).fetchone()
+        finally:
+            connection.close()
+
+        if user and check_password_hash(user["password_hash"], password):
+            session.clear()
+            session["user_id"] = user["id"]
+            session["user_name"] = user["name"]
+            return redirect(url_for("home"))
+
+        return render_template(
+            "login.html",
+            error="Incorrect email or password."
+        )
+
+    return render_template("login.html")
+
+
+@app.route("/logout", methods=["POST"])
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
 
 # =========================================================
 # DASHBOARD
 # =========================================================
 
 @app.route("/")
+@login_required
 def home():
 
     connection = get_db()
@@ -168,6 +320,7 @@ def home():
 # =========================================================
 
 @app.route("/planner")
+@login_required
 def planner():
 
     connection = get_db()
@@ -226,6 +379,7 @@ def add_task():
 # =========================================================
 
 @app.route("/timetable")
+@login_required
 def timetable():
 
     connection = get_db()
@@ -308,6 +462,7 @@ def delete_timetable_entry(entry_id):
     return redirect("/timetable")
 
 
+  
 # =========================================================
 # COMPLETE TASK
 # =========================================================
@@ -415,6 +570,7 @@ def update_task(task_id):
 # =========================================================
 
 @app.route("/notes")
+@login_required
 def notes():
 
     search = request.args.get("search", "")
@@ -587,6 +743,7 @@ def delete_note(note_id):
 # =========================================================
 
 @app.route("/goals")
+@login_required
 def goals():
 
     connection = get_db()
@@ -693,6 +850,7 @@ def delete_goal(goal_id):
 # =========================================================
 
 @app.route("/reminders")
+@login_required
 def reminders():
 
     connection = get_db()
@@ -786,6 +944,7 @@ def delete_reminder(reminder_id):
 # =========================================================
 
 @app.route("/timer")
+@login_required
 def timer():
 
     return render_template("timer.html")
@@ -826,6 +985,7 @@ def save_session():
 # =========================================================
 
 @app.route("/analytics")
+@login_required
 def analytics():
 
     connection = get_db()
@@ -880,6 +1040,7 @@ def analytics():
 # =========================================================
 
 @app.route("/achievements")
+@login_required
 def achievements():
 
     connection = get_db()

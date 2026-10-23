@@ -1,0 +1,291 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Student Study Planner</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #263449;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 270px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #101b2d, #18395f);
+            color: #fff;
+            padding: 30px 22px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            font-size: 23px;
+            font-weight: bold;
+            margin-bottom: 48px;
+        }
+
+        .brand i {
+            margin-right: 9px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            margin-bottom: 9px;
+            color: #dce5f2;
+            text-decoration: none;
+            border-radius: 10px;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-item.active {
+            background: #2865d7;
+            color: white;
+        }
+
+        .nav-item:hover {
+            background: #263f61;
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 35px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 460px;
+            background: white;
+            padding: 42px;
+            border-radius: 18px;
+            box-shadow: 0 8px 30px rgba(30, 50, 80, 0.08);
+            border: 1px solid #e9edf5;
+        }
+
+        .logo-circle {
+            width: 65px;
+            height: 65px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e8efff;
+            color: #2865d7;
+            border-radius: 18px;
+            font-size: 28px;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            text-align: center;
+            font-size: 28px;
+            color: #18263b;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #758197;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 18px 0 8px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8a96a9;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 14px 14px 43px;
+            border: 1px solid #dce3ed;
+            border-radius: 9px;
+            background: #fbfcfe;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #2865d7;
+            box-shadow: 0 0 0 3px rgba(40, 101, 215, 0.1);
+        }
+
+        button {
+            width: 100%;
+            margin-top: 26px;
+            padding: 14px;
+            border: none;
+            border-radius: 9px;
+            background: #2865d7;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d50b2;
+        }
+
+        .message {
+            padding: 12px;
+            margin-bottom: 15px;
+            background: #fff0f0;
+            color: #b42318;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .bottom-text {
+            margin-top: 24px;
+            text-align: center;
+            color: #758197;
+            font-size: 14px;
+        }
+
+        .bottom-text a {
+            color: #2865d7;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .bottom-text a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 760px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main {
+                padding: 20px;
+            }
+
+            .login-card {
+                padding: 30px 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <i class="fa-solid fa-graduation-cap"></i>
+            Study Planner
+        </div>
+
+        <a class="nav-item" href="{{ url_for('home') }}">
+            <i class="fa-solid fa-house"></i> Dashboard
+        </a>
+        <a class="nav-item" href="{{ url_for('planner') }}">
+            <i class="fa-solid fa-calendar-check"></i> Study Planner
+        </a>
+        <a class="nav-item" href="{{ url_for('timetable') }}">
+            <i class="fa-solid fa-calendar-days"></i> Timetable
+        </a>
+        <a class="nav-item" href="{{ url_for('notes') }}">
+            <i class="fa-solid fa-book-open"></i> My Notes
+        </a>
+        <a class="nav-item" href="{{ url_for('goals') }}">
+            <i class="fa-solid fa-bullseye"></i> Goals
+        </a>
+        <a class="nav-item" href="{{ url_for('reminders') }}">
+            <i class="fa-solid fa-bell"></i> Reminders
+        </a>
+        <a class="nav-item" href="{{ url_for('timer') }}">
+            <i class="fa-solid fa-stopwatch"></i> Study Timer
+        </a>
+        <a class="nav-item" href="{{ url_for('analytics') }}">
+            <i class="fa-solid fa-chart-column"></i> Analytics
+        </a>
+        <a class="nav-item" href="{{ url_for('achievements') }}">
+            <i class="fa-solid fa-trophy"></i> Achievements
+        </a>
+    </aside>
+
+    <main class="main">
+        <section class="login-card">
+            <div class="logo-circle">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+
+            <h1>Welcome Back!</h1>
+            <p class="subtitle">
+                Log in to organize your studies and achieve your goals.
+            </p>
+
+            {% if error %}
+                <div class="message">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('login') }}">
+                <label for="email">Email Address</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="email" name="email"
+                           placeholder="Enter your email"
+                           autocomplete="email" required>
+                </div>
+
+                <label for="password">Password</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" name="password"
+                           placeholder="Enter your password"
+                           autocomplete="current-password" required>
+                </div>
+
+                <button type="submit">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    &nbsp; Login to Study Planner
+                </button>
+            </form>
+
+            <div class="bottom-text">
+                Don't have an account?
+                <a href="{{ url_for('register') }}">Create Account</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
+```
