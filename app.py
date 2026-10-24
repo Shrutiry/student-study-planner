@@ -571,7 +571,7 @@ def update_task(task_id):
     connection.close()
 
     return redirect(url_for("planner"))
-```
+
 
 
 # =========================================================
