@@ -318,7 +318,6 @@ def home():
 # =========================================================
 # STUDY PLANNER
 # =========================================================
-
 @app.route("/planner")
 @login_required
 def planner():
@@ -326,12 +325,12 @@ def planner():
     connection = get_db()
     cursor = connection.cursor()
 
-   cursor.execute("""
-    SELECT *
-    FROM tasks
-    WHERE user_id = ?
-    ORDER BY study_date, study_time
-""", (session["user_id"],)) 
+    cursor.execute("""
+        SELECT *
+        FROM tasks
+        WHERE user_id = ?
+        ORDER BY study_date, study_time
+    """, (session["user_id"],))
 
     tasks = cursor.fetchall()
 
@@ -341,6 +340,7 @@ def planner():
         "planner.html",
         tasks=tasks
     )
+
 
 
 # =========================================================
