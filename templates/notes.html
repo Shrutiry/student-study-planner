@@ -1,64 +1,47 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>My Notes</title>
-    
-    <a href="{{ url_for('notes_quiz') }}" class="btn-add">
-      <i class="fa-solid fa-circle-question"></i>
-      Take Study Quiz
-    </a>
-
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
-
 
 <body>
 
 <div class="layout">
 
-
-   {% include '_sidebar.html' %}
-
+    {% include '_sidebar.html' %}
 
     <main class="main">
 
-        <h1>
-            📝 My Notes
-        </h1>
+        <h1>My Notes</h1>
 
-        <p>
-            Create and organize your study notes.
-        </p>
+        <p>Create and organize your study notes.</p>
 
+        <!-- STUDY QUIZ BUTTON -->
+        <div style="margin: 20px 0;">
+            <a href="{{ url_for('notes_quiz') }}" class="btn-add">
+                <i class="fa-solid fa-circle-question"></i>
+                Take Study Quiz
+            </a>
+        </div>
 
         <!-- ADD NOTE -->
-
         <div class="form-card">
 
-            <h2>
-                ➕ Add New Note
-            </h2>
+            <h2>Add New Note</h2>
 
-            <form action="/add-note"
-                  method="POST">
+            <form action="{{ url_for('add_note') }}" method="POST">
 
-
-                <label>
-                    Note Title
-                </label>
-
+                <label>Note Title</label>
                 <input
                     type="text"
                     name="title"
@@ -66,11 +49,7 @@
                     required
                 >
 
-
-                <label>
-                    Subject
-                </label>
-
+                <label>Subject</label>
                 <input
                     type="text"
                     name="subject"
@@ -78,11 +57,7 @@
                     required
                 >
 
-
-                <label>
-                    Note Content
-                </label>
-
+                <label>Note Content</label>
                 <textarea
                     name="content"
                     rows="7"
@@ -90,185 +65,124 @@
                     required
                 ></textarea>
 
-
                 <label class="check-label">
-
                     <input
                         type="checkbox"
                         name="important"
                         value="1"
                     >
-
-                    ⭐ Important Note
-
+                    Important Note
                 </label>
 
-
-                <button
-                    type="submit"
-                    class="primary-btn"
-                >
-
-                    ➕ Save Note
-
+                <button type="submit" class="primary-btn">
+                    <i class="fa-solid fa-plus"></i>
+                    Save Note
                 </button>
 
             </form>
 
         </div>
 
-
-        <!-- SEARCH -->
-
+        <!-- SEARCH NOTES -->
         <div class="search-box">
 
-            <form action="/notes"
-                  method="GET">
+            <form action="{{ url_for('notes') }}" method="GET">
 
                 <input
                     type="text"
                     name="search"
-                    placeholder="🔍 Search notes..."
+                    placeholder="Search notes..."
                     value="{{ search }}"
                 >
 
-
                 <label class="check-label">
-
                     <input
                         type="checkbox"
                         name="important"
                         value="1"
-
-                        {% if important == "1" %}
-                        checked
-                        {% endif %}
+                        {% if important == "1" %}checked{% endif %}
                     >
-
-                    ⭐ Important Only
-
+                    Important Only
                 </label>
 
-
-                <button
-                    type="submit"
-                    class="primary-btn"
-                >
-
+                <button type="submit" class="primary-btn">
+                    <i class="fa-solid fa-magnifying-glass"></i>
                     Search
-
                 </button>
 
-
-                <a
-                    href="/notes"
-                    class="clear-btn"
-                >
-
+                <a href="{{ url_for('notes') }}" class="clear-btn">
                     Clear
-
                 </a>
 
             </form>
 
         </div>
 
-
-        <!-- NOTES -->
-
+        <!-- DISPLAY NOTES -->
         <section class="section">
 
-            <h2>
-                📚 Your Notes
-            </h2>
-
+            <h2>Your Notes</h2>
 
             {% if notes %}
 
-            <div class="notes-grid">
+                <div class="notes-grid">
 
-                {% for note in notes %}
+                    {% for note in notes %}
 
-                <div class="note-card">
+                        <div class="note-card">
 
+                            <div class="note-header">
 
-                    <div class="note-header">
+                                <h3>{{ note["title"] }}</h3>
 
-                        <h3>
-                            {{ note["title"] }}
-                        </h3>
+                                {% if note["important"] == 1 %}
+                                    <span class="important">
+                                        Important
+                                    </span>
+                                {% endif %}
 
+                            </div>
 
-                        {% if note["important"] == 1 %}
+                            <p class="subject">
+                                {{ note["subject"] }}
+                            </p>
 
-                        <span class="important">
+                            <p class="note-content">
+                                {{ note["content"] }}
+                            </p>
 
-                            ⭐ Important
+                            <div class="actions">
 
-                        </span>
+                                <a
+                                    href="{{ url_for('edit_note', note_id=note['id']) }}"
+                                    class="edit-btn"
+                                >
+                                    <i class="fa-solid fa-pen"></i>
+                                    Edit
+                                </a>
 
-                        {% endif %}
+                                <a
+                                    href="{{ url_for('delete_note', note_id=note['id']) }}"
+                                    class="delete-btn"
+                                    onclick="return confirm('Delete this note?')"
+                                >
+                                    <i class="fa-solid fa-trash"></i>
+                                    Delete
+                                </a>
 
-                    </div>
+                            </div>
 
+                        </div>
 
-                    <p class="subject">
-
-                        📚 {{ note["subject"] }}
-
-                    </p>
-
-
-                    <p class="note-content">
-
-                        {{ note["content"] }}
-
-                    </p>
-
-
-                    <div class="actions">
-
-                        <a
-                            href="/edit-note/{{ note['id'] }}"
-                            class="edit-btn"
-                        >
-
-                            ✏️ Edit
-
-                        </a>
-
-
-                        <a
-                            href="/delete-note/{{ note['id'] }}"
-                            class="delete-btn"
-
-                            onclick="
-                            return confirm(
-                            'Delete this note?'
-                            )
-                            "
-                        >
-
-                            🗑️ Delete
-
-                        </a>
-
-                    </div>
+                    {% endfor %}
 
                 </div>
 
-                {% endfor %}
-
-            </div>
-
-
             {% else %}
 
-            <div class="empty-box">
-
-                📝 No notes found.
-
-            </div>
+                <div class="empty-box">
+                    No notes found.
+                </div>
 
             {% endif %}
 
@@ -279,5 +193,13 @@
 </div>
 
 </body>
-
 </html>
+
+              
+                   
+
+                 
+
+                   
+
+            
