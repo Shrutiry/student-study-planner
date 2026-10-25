@@ -769,10 +769,27 @@ def notes_quiz():
     notes = cursor.fetchall()
     connection.close()
 
+    questions = []
+
+    for note in notes:
+        subject = note["subject"]
+        title = note["title"]
+        content = note["content"]
+
+        questions.append({
+            "question": "Which subject does the note '" + title + "' belong to?",
+            "options": [
+                subject,
+                "Computer Networks",
+                "Operating Systems",
+                "Database Management Systems"
+            ],
+            "answer": 0
+        })
+
     return render_template(
         "notes_quiz.html",
-        notes=notes
-       
+        questions=questions
     )
 
 
