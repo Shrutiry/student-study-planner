@@ -583,7 +583,6 @@ def update_task(task_id):
 @app.route("/notes")
 @login_required
 def notes():
-
     search = request.args.get("search", "")
     important = request.args.get("important", "")
 
@@ -592,13 +591,12 @@ def notes():
     query = """
         SELECT *
         FROM notes
-        WHERE 1=1
+        WHERE user_id = ?
     """
 
-    parameters = []
+    parameters = [session["user_id"]]
 
     if search:
-
         query += """
             AND (
                 title LIKE ?
@@ -606,26 +604,15 @@ def notes():
                 OR content LIKE ?
             )
         """
-
-        parameters.extend([
-            "%" + search + "%",
-            "%" + search + "%",
-            "%" + search + "%"
-        ])
+        parameters.extend(["%" + search + "%"] * 3)
 
     if important == "1":
+        query += " AND important = 1"
 
-        query += """
-            AND important = 1
-        """
-
-    query += """
-        ORDER BY created_at DESC
-    """
+    query += " ORDER BY created_at DESC"
 
     notes = connection.execute(
-        query,
-        parameters
+        query, parameters
     ).fetchall()
 
     connection.close()
@@ -636,6 +623,8 @@ def notes():
         search=search,
         important=important
     )
+
+        
 
 
 # =========================================================
