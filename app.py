@@ -756,6 +756,8 @@ def delete_note(note_id):
 @app.route("/notes-quiz")
 @login_required
 def notes_quiz():
+    import re
+
     connection = get_db()
     cursor = connection.cursor()
 
@@ -770,27 +772,118 @@ def notes_quiz():
     connection.close()
 
     questions = []
+    all_answers = []
+    note_sentences = []
 
+    # Read the actual content of every saved note
     for note in notes:
-        subject = note["subject"]
-        title = note["title"]
-        content = note["content"]
+        sentences = re.split(
+            r'(?<=[.!?])\s+|\n+',
+            note["content"].strip()
+        )
+
+        for sentence in sentences:
+            sentence = sentence.strip()
+
+            if len(sentence.split()) >= 5:
+                note_sentences.append({
+                    "title": note["title"],
+                    "subject": note["subject"],
+                    "text": sentence
+                })
+
+                # Find definitions and explanations
+                match = re.match(
+                    r'^(.{2,80}?)\s+'
+                    r'(?:is defined as|refers to|consists of|'
+                    r'means|is|are)\s+(.+)$',
+                    sentence,
+                    re.IGNORECASE
+                )
+
+                if match:
+                    term = match.group(1).strip(" :-")
+                    explanation = match.group(2).strip(" .")
+
+                    if len(term.split()) <= 10 and explanation:
+                        all_answers.append({
+                            "term": term,
+                            "answer": explanation,
+                            "title": note["title"],
+                            "subject": note["subject"]
+                        })
+
+    # Create questions from definitions in saved notes
+    for item in all_answers:
+        correct = item["answer"]
+
+        distractors = [
+            other["answer"]
+            for other in all_answers
+            if other["answer"].lower() != correct.lower()
+        ]
+
+        # Add other actual note sentences if needed
+        for sentence in note_sentences:
+            text = sentence["text"].strip(" .")
+            if text.lower() != correct.lower():
+                distractors.append(text)
+
+        unique_options = []
+        for option in distractors:
+            if option.lower() != correct.lower() and option not in unique_options:
+                unique_options.append(option)
+
+        options = [correct] + unique_options[:3]
+
+        if len(options) < 2:
+            continue
 
         questions.append({
-            "question": "Which subject does the note '" + title + "' belong to?",
-            "options": [
-                subject,
-                "Computer Networks",
-                "Operating Systems",
-                "Database Management Systems"
-            ],
+            "question": (
+                "According to your "
+                + item["subject"]
+                + " note, what does '"
+                + item["term"]
+                + "' mean?"
+            ),
+            "options": options,
             "answer": 0
         })
+
+        if len(questions) >= 10:
+            break
+
+    # Fallback for notes without recognizable definitions
+    if not questions and note_sentences:
+        for item in note_sentences[:10]:
+            options = [item["text"].strip(" .")]
+
+            for other in note_sentences:
+                text = other["text"].strip(" .")
+
+                if text not in options:
+                    options.append(text)
+
+                if len(options) == 4:
+                    break
+
+            if len(options) >= 2:
+                questions.append({
+                    "question": (
+                        "Which statement appears in your note about '"
+                        + item["title"]
+                        + "'?"
+                    ),
+                    "options": options,
+                    "answer": 0
+                })
 
     return render_template(
         "notes_quiz.html",
         questions=questions
     )
+
 
 
 # =========================================================
