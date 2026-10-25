@@ -67,7 +67,9 @@ def init_db():
             subject TEXT NOT NULL,
             content TEXT NOT NULL,
             important INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+             user_id INTEGER
+        
         )
     """)
 
