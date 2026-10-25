@@ -746,66 +746,6 @@ def delete_note(note_id):
 
     return redirect("/notes")
 
-# =========================================================
-# NOTES
-# =========================================================
-
-@app.route("/notes")
-@login_required
-def notes():
-
-    search = request.args.get("search", "")
-    important = request.args.get("important", "")
-
-    connection = get_db()
-
-    query = """
-        SELECT *
-        FROM notes
-        WHERE 1=1
-    """
-
-    parameters = []
-
-    if search:
-
-        query += """
-            AND (
-                title LIKE ?
-                OR subject LIKE ?
-                OR content LIKE ?
-            )
-        """
-
-        parameters.extend([
-            "%" + search + "%",
-            "%" + search + "%",
-            "%" + search + "%"
-        ])
-
-    if important == "1":
-
-        query += """
-            AND important = 1
-        """
-
-    query += """
-        ORDER BY created_at DESC
-    """
-
-    notes = connection.execute(
-        query,
-        parameters
-    ).fetchall()
-
-    connection.close()
-
-    return render_template(
-        "notes.html",
-        notes=notes,
-        search=search,
-        important=important
-    )
 
 
 # =========================================================
