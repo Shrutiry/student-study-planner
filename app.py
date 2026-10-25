@@ -643,32 +643,33 @@ def notes():
 # =========================================================
 
 @app.route("/add-note", methods=["POST"])
+@login_required
 def add_note():
-
     title = request.form["title"]
     subject = request.form["subject"]
     content = request.form["content"]
-
     important = 1 if request.form.get("important") else 0
 
     connection = get_db()
 
     connection.execute("""
         INSERT INTO notes
-        (title, subject, content, important)
-        VALUES (?, ?, ?, ?)
+        (title, subject, content, important, user_id)
+        VALUES (?, ?, ?, ?, ?)
     """, (
         title,
         subject,
         content,
-        important
+        important,
+        session["user_id"]
     ))
 
     connection.commit()
     connection.close()
 
-    return redirect("/notes")
+    return redirect(url_for("notes"))
 
+  
 
 # =========================================================
 # EDIT NOTE
