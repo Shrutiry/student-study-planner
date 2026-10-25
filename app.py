@@ -754,48 +754,23 @@ def delete_note(note_id):
 @app.route("/notes-quiz")
 @login_required
 def notes_quiz():
+    connection = get_db()
+    cursor = connection.cursor()
 
-    questions = [
-        {
-            "question": "What does CPU stand for?",
-            "options": [
-                "Central Processing Unit",
-                "Computer Personal Unit",
-                "Central Program Utility",
-                "Control Processing User"
-            ],
-            "answer": 0
-        },
-        {
-            "question": "Which language is commonly used with Flask?",
-            "options": ["Java", "Python", "C++", "PHP"],
-            "answer": 1
-        },
-        {
-            "question": "Which of these is a database?",
-            "options": ["HTML", "CSS", "SQLite", "Font Awesome"],
-            "answer": 2
-        },
-        {
-            "question": "What does HTML stand for?",
-            "options": [
-                "HyperText Markup Language",
-                "HighText Machine Language",
-                "HyperTool Multi Language",
-                "Home Tool Markup Language"
-            ],
-            "answer": 0
-        },
-        {
-            "question": "Which symbol starts a Python comment?",
-            "options": ["//", "#", "/*", "<!--"],
-            "answer": 1
-        }
-    ]
+    cursor.execute("""
+        SELECT title, subject, content
+        FROM notes
+        WHERE user_id = ?
+        ORDER BY id DESC
+    """, (session["user_id"],))
+
+    notes = cursor.fetchall()
+    connection.close()
 
     return render_template(
         "notes_quiz.html",
-        questions=questions
+        notes=notes
+       
     )
 
 
