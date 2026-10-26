@@ -1,24 +1,23 @@
 <div class="sidebar">
-    <div class="sidebar-brand">
-        <h2>🎓 Study Planner</h2>
+    <div class="logo">
+        🎓 Study Planner
     </div>
 
-    <ul class="sidebar-links">
-        <li><a href="/" class="{% if request.path == '/' %}active{% endif %}"><i class="fa-solid fa-house"></i> Dashboard</a></li>
-        <li><a href="/planner" class="{% if request.path == '/planner' %}active{% endif %}"><i class="fa-solid fa-calendar"></i> Study Planner</a></li>
-        <li><a href="/timetable" class="{% if request.path == '/timetable' %}active{% endif %}"><i class="fa-solid fa-calendar-days"></i> Timetable</a></li>
-        <li><a href="/notes" class="{% if request.path == '/notes' %}active{% endif %}"><i class="fa-solid fa-note-sticky"></i> My Notes</a></li>
-        <li><a href="/goals" class="{% if request.path == '/goals' %}active{% endif %}"><i class="fa-solid fa-bullseye"></i> Goals</a></li>
-        <li><a href="/reminders" class="{% if request.path == '/reminders' %}active{% endif %}"><i class="fa-solid fa-bell"></i> Reminders</a></li>
-        <li><a href="/timer" class="{% if request.path == '/timer' %}active{% endif %}"><i class="fa-solid fa-stopwatch"></i> Study Timer</a></li>
-        <li><a href="/analytics" class="{% if request.path == '/analytics' %}active{% endif %}"><i class="fa-solid fa-chart-pie"></i> Analytics</a></li>
-        <li><a href="/achievements" class="{% if request.path == '/achievements' %}active{% endif %}"><i class="fa-solid fa-trophy"></i> Achievements</a></li>
-    </ul>
+    <nav>
+        <a href="/" class="{% if request.path == '/' %}active{% endif %}"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <a href="/planner" class="{% if request.path == '/planner' %}active{% endif %}"><i class="fa-solid fa-calendar"></i> Study Planner</a>
+        <a href="/timetable" class="{% if request.path == '/timetable' %}active{% endif %}"><i class="fa-solid fa-calendar-days"></i> Timetable</a>
+        <a href="/notes" class="{% if request.path == '/notes' %}active{% endif %}"><i class="fa-solid fa-note-sticky"></i> My Notes</a>
+        <a href="/goals" class="{% if request.path == '/goals' %}active{% endif %}"><i class="fa-solid fa-bullseye"></i> Goals</a>
+        <a href="/reminders" class="{% if request.path == '/reminders' %}active{% endif %}"><i class="fa-solid fa-bell"></i> Reminders</a>
+        <a href="/timer" class="{% if request.path == '/timer' %}active{% endif %}"><i class="fa-solid fa-stopwatch"></i> Study Timer</a>
+        <a href="/analytics" class="{% if request.path == '/analytics' %}active{% endif %}"><i class="fa-solid fa-chart-pie"></i> Analytics</a>
+        <a href="/achievements" class="{% if request.path == '/achievements' %}active{% endif %}"><i class="fa-solid fa-trophy"></i> Achievements</a>
+    </nav>
 
-    <div class="sidebar-footer">
-        <a href="/logout" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    <div class="sidebar-logout">
+        <a href="/logout" class="logout-btn">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </a>
     </div>
 </div>
-
-
-       
