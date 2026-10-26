@@ -68,6 +68,25 @@
             let resultDiv = document.getElementById('quiz-result');
             resultDiv.innerHTML = `You scored ${score} out of ${total}!`;
             resultDiv.style.color = score === total ? '#198754' : '#4f46e5';
+            // If user gets a perfect score, notify the backend to record achievement progress
+            if (score === total && total > 0) {
+                fetch('/notes/quiz/complete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    let badge = document.createElement('div');
+                    badge.style.marginTop = '10px';
+                    badge.style.color = '#198754';
+                    badge.style.fontWeight = 'bold';
+                    badge.innerHTML = '<i class="fa-solid fa-trophy"></i> Perfect Score! Achievement progress updated.';
+                    resultDiv.appendChild(badge);
+                })
+                .catch(error => console.error('Error recording achievement:', error));
+            }
         }
     </script>
 </body>
