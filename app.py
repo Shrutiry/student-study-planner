@@ -9,6 +9,7 @@ from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = "change-this-to-a-long-random-secret"
+
 def login_required(view_function):
     @wraps(view_function)
     def wrapped_view(*args, **kwargs):
@@ -16,6 +17,7 @@ def login_required(view_function):
             return redirect(url_for("login"))
         return view_function(*args, **kwargs)
     return wrapped_view
+
 DATABASE = "database.db"
 
 
@@ -30,15 +32,14 @@ def get_db():
 
 
 def init_db():
-
     connection = get_db()
     cursor = connection.cursor()
 
     # ---------------- TASKS ----------------
-
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
             subject TEXT NOT NULL,
             topic TEXT NOT NULL,
             study_date TEXT NOT NULL,
@@ -47,8 +48,8 @@ def init_db():
             status TEXT DEFAULT 'Pending'
         )
     """)
-     # ---------------- USERS ----------------
-
+    
+    # ---------------- USERS ----------------
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -59,25 +60,23 @@ def init_db():
     """)
 
     # ---------------- NOTES ----------------
-
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS notes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
             title TEXT NOT NULL,
             subject TEXT NOT NULL,
             content TEXT NOT NULL,
             important INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-             user_id INTEGER
-        
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
 
     # ---------------- GOALS ----------------
-
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS goals (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
             title TEXT NOT NULL,
             target_date TEXT NOT NULL,
             progress INTEGER DEFAULT 0,
@@ -86,10 +85,10 @@ def init_db():
     """)
 
     # ---------------- REMINDERS ----------------
-
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS reminders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
             title TEXT NOT NULL,
             reminder_date TEXT NOT NULL,
             reminder_time TEXT NOT NULL,
@@ -98,10 +97,10 @@ def init_db():
     """)
 
     # ---------------- STUDY SESSIONS ----------------
-
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS study_sessions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
             subject TEXT NOT NULL,
             duration INTEGER NOT NULL,
             session_date TEXT NOT NULL
@@ -109,10 +108,10 @@ def init_db():
     """)
 
     # ---------------- TIMETABLE ----------------
-
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS timetable (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
             entry_type TEXT NOT NULL,
             day TEXT NOT NULL,
             title TEXT NOT NULL,
@@ -124,10 +123,6 @@ def init_db():
         )
     """)
 
-    # ---------------- USER DATA OWNERSHIP ----------------
-    # Add user_id to existing tables without deleting records.
-    # Assign existing records to Shruti's account (ID 2).
-
     tables = [
         "tasks",
         "notes",
@@ -137,35 +132,28 @@ def init_db():
         "timetable"
     ]
 
-    # Confirm the account exists before migrating records.
     owner = cursor.execute(
         "SELECT id FROM users WHERE id = ?", (2,)
     ).fetchone()
 
-    if owner is None:
-        connection.close()
-        raise RuntimeError(
-            "Account ID 2 was not found. Database migration stopped."
-        )
+    if owner is not None:
+        for table in tables:
+            columns = [
+                row["name"]
+                for row in cursor.execute(
+                    f"PRAGMA table_info({table})"
+                ).fetchall()
+            ]
 
-    for table in tables:
-        columns = [
-            row["name"]
-            for row in cursor.execute(
-                f"PRAGMA table_info({table})"
-            ).fetchall()
-        ]
+            if "user_id" not in columns:
+                cursor.execute(
+                    f"ALTER TABLE {table} ADD COLUMN user_id INTEGER"
+                )
 
-        if "user_id" not in columns:
             cursor.execute(
-                f"ALTER TABLE {table} ADD COLUMN user_id INTEGER"
+                f"UPDATE {table} SET user_id = ? WHERE user_id IS NULL",
+                (2,)
             )
-
-        # Existing records have no owner yet, so assign them to Shruti.
-        cursor.execute(
-            f"UPDATE {table} SET user_id = ? WHERE user_id IS NULL",
-            (2,)
-        )
 
     connection.commit()
     connection.close()
@@ -257,6 +245,7 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
+
 # =========================================================
 # DASHBOARD
 # =========================================================
@@ -264,44 +253,46 @@ def logout():
 @app.route("/")
 @login_required
 def home():
-
+    user_id = session["user_id"]
     connection = get_db()
     cursor = connection.cursor()
 
-    cursor.execute("SELECT COUNT(*) FROM tasks")
+    cursor.execute("SELECT COUNT(*) FROM tasks WHERE user_id = ?", (user_id,))
     total_tasks = cursor.fetchone()[0]
 
     cursor.execute("""
         SELECT COUNT(*)
         FROM tasks
-        WHERE status = 'Completed'
-    """)
+        WHERE user_id = ? AND status = 'Completed'
+    """, (user_id,))
     completed_tasks = cursor.fetchone()[0]
 
-    cursor.execute("SELECT COUNT(*) FROM notes")
+    cursor.execute("SELECT COUNT(*) FROM notes WHERE user_id = ?", (user_id,))
     total_notes = cursor.fetchone()[0]
 
     cursor.execute("""
         SELECT COUNT(*)
         FROM goals
-        WHERE status = 'Active'
-    """)
+        WHERE user_id = ? AND status = 'Active'
+    """, (user_id,))
     active_goals = cursor.fetchone()[0]
 
     cursor.execute("""
         SELECT *
         FROM tasks
+        WHERE user_id = ?
         ORDER BY study_date, study_time
         LIMIT 5
-    """)
+    """, (user_id,))
     recent_tasks = cursor.fetchall()
 
     cursor.execute("""
         SELECT *
         FROM goals
+        WHERE user_id = ?
         ORDER BY target_date
         LIMIT 5
-    """)
+    """, (user_id,))
     goals = cursor.fetchall()
 
     connection.close()
@@ -320,10 +311,11 @@ def home():
 # =========================================================
 # STUDY PLANNER
 # =========================================================
+
 @app.route("/planner")
 @login_required
 def planner():
-
+    user_id = session["user_id"]
     connection = get_db()
     cursor = connection.cursor()
 
@@ -332,10 +324,9 @@ def planner():
         FROM tasks
         WHERE user_id = ?
         ORDER BY study_date, study_time
-    """, (session["user_id"],))
+    """, (user_id,))
 
     tasks = cursor.fetchall()
-
     connection.close()
 
     return render_template(
@@ -344,14 +335,14 @@ def planner():
     )
 
 
-
 # =========================================================
 # ADD TASK
 # =========================================================
 
 @app.route("/add-task", methods=["POST"])
+@login_required
 def add_task():
-
+    user_id = session["user_id"]
     subject = request.form["subject"]
     topic = request.form["topic"]
     study_date = request.form["study_date"]
@@ -359,12 +350,12 @@ def add_task():
     priority = request.form["priority"]
 
     connection = get_db()
-
     connection.execute("""
         INSERT INTO tasks
-        (subject, topic, study_date, study_time, priority)
-        VALUES (?, ?, ?, ?, ?)
+        (user_id, subject, topic, study_date, study_time, priority)
+        VALUES (?, ?, ?, ?, ?, ?)
     """, (
+        user_id,
         subject,
         topic,
         study_date,
@@ -377,6 +368,7 @@ def add_task():
 
     return redirect("/planner")
 
+
 # =========================================================
 # TIMETABLE
 # =========================================================
@@ -384,14 +376,15 @@ def add_task():
 @app.route("/timetable")
 @login_required
 def timetable():
-
+    user_id = session["user_id"]
     connection = get_db()
 
     entries = connection.execute("""
         SELECT *
         FROM timetable
+        WHERE user_id = ?
         ORDER BY day, start_time
-    """).fetchall()
+    """, (user_id,)).fetchall()
 
     connection.close()
 
@@ -412,8 +405,9 @@ def timetable():
 # =========================================================
 
 @app.route("/timetable/add", methods=["POST"])
+@login_required
 def add_timetable_entry():
-
+    user_id = session["user_id"]
     entry_type = request.form["entry_type"]
     day = request.form["day"]
     title = request.form["title"]
@@ -428,14 +422,13 @@ def add_timetable_entry():
         return redirect("/timetable")
 
     connection = get_db()
-
     connection.execute("""
         INSERT INTO timetable
-        (entry_type, day, title, start_time, end_time,
+        (user_id, entry_type, day, title, start_time, end_time,
          location, teacher, notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        entry_type, day, title, start_time, end_time,
+        user_id, entry_type, day, title, start_time, end_time,
         location, teacher, notes
     ))
 
@@ -450,14 +443,15 @@ def add_timetable_entry():
 # =========================================================
 
 @app.route("/timetable/delete/<int:entry_id>", methods=["POST"])
+@login_required
 def delete_timetable_entry(entry_id):
-
+    user_id = session["user_id"]
     connection = get_db()
 
     connection.execute("""
         DELETE FROM timetable
-        WHERE id = ?
-    """, (entry_id,))
+        WHERE id = ? AND user_id = ?
+    """, (entry_id, user_id))
 
     connection.commit()
     connection.close()
@@ -465,47 +459,47 @@ def delete_timetable_entry(entry_id):
     return redirect("/timetable")
 
 
-  
+# =========================================================
 # COMPLETE TASK
 # =========================================================
 
-@app.route("/complete-task/<int:task_id>", methods=["POST"])
+@app.route("/complete-task/<int:task_id>")
 @login_required
 def complete_task(task_id):
-
+    user_id = session["user_id"]
     connection = get_db()
 
     connection.execute("""
         UPDATE tasks
         SET status = 'Completed'
         WHERE id = ? AND user_id = ?
-    """, (task_id, session["user_id"]))
+    """, (task_id, user_id))
 
     connection.commit()
     connection.close()
 
-    return redirect(url_for("planner"))
+    return redirect("/planner")
 
 
 # =========================================================
 # DELETE TASK
 # =========================================================
 
-@app.route("/delete-task/<int:task_id>", methods=["POST"])
+@app.route("/delete-task/<int:task_id>")
 @login_required
 def delete_task(task_id):
-
+    user_id = session["user_id"]
     connection = get_db()
 
     connection.execute("""
         DELETE FROM tasks
         WHERE id = ? AND user_id = ?
-    """, (task_id, session["user_id"]))
+    """, (task_id, user_id))
 
     connection.commit()
     connection.close()
 
-    return redirect(url_for("planner"))
+    return redirect("/planner")
 
 
 # =========================================================
@@ -515,19 +509,16 @@ def delete_task(task_id):
 @app.route("/edit-task/<int:task_id>")
 @login_required
 def edit_task(task_id):
-
+    user_id = session["user_id"]
     connection = get_db()
 
     task = connection.execute("""
         SELECT *
         FROM tasks
         WHERE id = ? AND user_id = ?
-    """, (task_id, session["user_id"])).fetchone()
+    """, (task_id, user_id)).fetchone()
 
     connection.close()
-
-    if task is None:
-        return "Task not found or access denied.", 404
 
     return render_template(
         "edit_task.html",
@@ -542,7 +533,7 @@ def edit_task(task_id):
 @app.route("/update-task/<int:task_id>", methods=["POST"])
 @login_required
 def update_task(task_id):
-
+    user_id = session["user_id"]
     subject = request.form["subject"]
     topic = request.form["topic"]
     study_date = request.form["study_date"]
@@ -550,7 +541,6 @@ def update_task(task_id):
     priority = request.form["priority"]
 
     connection = get_db()
-
     connection.execute("""
         UPDATE tasks
         SET subject = ?,
@@ -566,14 +556,13 @@ def update_task(task_id):
         study_time,
         priority,
         task_id,
-        session["user_id"]
+        user_id
     ))
 
     connection.commit()
     connection.close()
 
-    return redirect(url_for("planner"))
-
+    return redirect("/planner")
 
 
 # =========================================================
@@ -583,6 +572,7 @@ def update_task(task_id):
 @app.route("/notes")
 @login_required
 def notes():
+    user_id = session["user_id"]
     search = request.args.get("search", "")
     important = request.args.get("important", "")
 
@@ -593,8 +583,7 @@ def notes():
         FROM notes
         WHERE user_id = ?
     """
-
-    parameters = [session["user_id"]]
+    parameters = [user_id]
 
     if search:
         query += """
@@ -604,17 +593,18 @@ def notes():
                 OR content LIKE ?
             )
         """
-        parameters.extend(["%" + search + "%"] * 3)
+        parameters.extend([
+            "%" + search + "%",
+            "%" + search + "%",
+            "%" + search + "%"
+        ])
 
     if important == "1":
         query += " AND important = 1"
 
     query += " ORDER BY created_at DESC"
 
-    notes = connection.execute(
-        query, parameters
-    ).fetchall()
-
+    notes = connection.execute(query, parameters).fetchall()
     connection.close()
 
     return render_template(
@@ -624,8 +614,6 @@ def notes():
         important=important
     )
 
-        
-
 
 # =========================================================
 # ADD NOTE
@@ -634,46 +622,46 @@ def notes():
 @app.route("/add-note", methods=["POST"])
 @login_required
 def add_note():
+    user_id = session["user_id"]
     title = request.form["title"]
     subject = request.form["subject"]
     content = request.form["content"]
     important = 1 if request.form.get("important") else 0
 
     connection = get_db()
-
     connection.execute("""
         INSERT INTO notes
-        (title, subject, content, important, user_id)
+        (user_id, title, subject, content, important)
         VALUES (?, ?, ?, ?, ?)
     """, (
+        user_id,
         title,
         subject,
         content,
-        important,
-        session["user_id"]
+        important
     ))
 
     connection.commit()
     connection.close()
 
-    return redirect(url_for("notes"))
+    return redirect("/notes")
 
-  
 
 # =========================================================
 # EDIT NOTE
 # =========================================================
 
 @app.route("/edit-note/<int:note_id>")
+@login_required
 def edit_note(note_id):
-
+    user_id = session["user_id"]
     connection = get_db()
 
     note = connection.execute("""
         SELECT *
         FROM notes
-        WHERE id = ?
-    """, (note_id,)).fetchone()
+        WHERE id = ? AND user_id = ?
+    """, (note_id, user_id)).fetchone()
 
     connection.close()
 
@@ -688,29 +676,29 @@ def edit_note(note_id):
 # =========================================================
 
 @app.route("/update-note/<int:note_id>", methods=["POST"])
+@login_required
 def update_note(note_id):
-
+    user_id = session["user_id"]
     title = request.form["title"]
     subject = request.form["subject"]
     content = request.form["content"]
-
     important = 1 if request.form.get("important") else 0
 
     connection = get_db()
-
     connection.execute("""
         UPDATE notes
         SET title = ?,
             subject = ?,
             content = ?,
             important = ?
-        WHERE id = ?
+        WHERE id = ? AND user_id = ?
     """, (
         title,
         subject,
         content,
         important,
-        note_id
+        note_id,
+        user_id
     ))
 
     connection.commit()
@@ -724,156 +712,20 @@ def update_note(note_id):
 # =========================================================
 
 @app.route("/delete-note/<int:note_id>")
+@login_required
 def delete_note(note_id):
-
+    user_id = session["user_id"]
     connection = get_db()
 
     connection.execute("""
         DELETE FROM notes
-        WHERE id = ?
-    """, (note_id,))
+        WHERE id = ? AND user_id = ?
+    """, (note_id, user_id))
 
     connection.commit()
     connection.close()
 
     return redirect("/notes")
-
-
-# =========================================================
-# NOTES QUIZ
-# =========================================================
-
-@app.route("/notes-quiz")
-@login_required
-def notes_quiz():
-    import re
-
-    connection = get_db()
-    cursor = connection.cursor()
-
-    cursor.execute("""
-        SELECT title, subject, content
-        FROM notes
-        WHERE user_id = ?
-        ORDER BY id DESC
-    """, (session["user_id"],))
-
-    notes = cursor.fetchall()
-    connection.close()
-
-    questions = []
-    all_answers = []
-    note_sentences = []
-
-    # Read the actual content of every saved note
-    for note in notes:
-        sentences = re.split(
-            r'(?<=[.!?])\s+|\n+',
-            note["content"].strip()
-        )
-
-        for sentence in sentences:
-            sentence = sentence.strip()
-
-            if len(sentence.split()) >= 5:
-                note_sentences.append({
-                    "title": note["title"],
-                    "subject": note["subject"],
-                    "text": sentence
-                })
-
-                # Find definitions and explanations
-                match = re.match(
-                    r'^(.{2,80}?)\s+'
-                    r'(?:is defined as|refers to|consists of|'
-                    r'means|is|are)\s+(.+)$',
-                    sentence,
-                    re.IGNORECASE
-                )
-
-                if match:
-                    term = match.group(1).strip(" :-")
-                    explanation = match.group(2).strip(" .")
-
-                    if len(term.split()) <= 10 and explanation:
-                        all_answers.append({
-                            "term": term,
-                            "answer": explanation,
-                            "title": note["title"],
-                            "subject": note["subject"]
-                        })
-
-    # Create questions from definitions in saved notes
-    for item in all_answers:
-        correct = item["answer"]
-
-        distractors = [
-            other["answer"]
-            for other in all_answers
-            if other["answer"].lower() != correct.lower()
-        ]
-
-        # Add other actual note sentences if needed
-        for sentence in note_sentences:
-            text = sentence["text"].strip(" .")
-            if text.lower() != correct.lower():
-                distractors.append(text)
-
-        unique_options = []
-        for option in distractors:
-            if option.lower() != correct.lower() and option not in unique_options:
-                unique_options.append(option)
-
-        options = [correct] + unique_options[:3]
-
-        if len(options) < 2:
-            continue
-
-        questions.append({
-            "question": (
-                "According to your "
-                + item["subject"]
-                + " note, what does '"
-                + item["term"]
-                + "' mean?"
-            ),
-            "options": options,
-            "answer": 0
-        })
-
-        if len(questions) >= 10:
-            break
-
-    # Fallback for notes without recognizable definitions
-    if not questions and note_sentences:
-        for item in note_sentences[:10]:
-            options = [item["text"].strip(" .")]
-
-            for other in note_sentences:
-                text = other["text"].strip(" .")
-
-                if text not in options:
-                    options.append(text)
-
-                if len(options) == 4:
-                    break
-
-            if len(options) >= 2:
-                questions.append({
-                    "question": (
-                        "Which statement appears in your note about '"
-                        + item["title"]
-                        + "'?"
-                    ),
-                    "options": options,
-                    "answer": 0
-                })
-
-    return render_template(
-        "notes_quiz.html",
-        questions=questions
-    )
-
 
 
 # =========================================================
@@ -883,14 +735,15 @@ def notes_quiz():
 @app.route("/goals")
 @login_required
 def goals():
-
+    user_id = session["user_id"]
     connection = get_db()
 
     goals = connection.execute("""
         SELECT *
         FROM goals
+        WHERE user_id = ?
         ORDER BY target_date
-    """).fetchall()
+    """, (user_id,)).fetchall()
 
     connection.close()
 
@@ -905,18 +758,19 @@ def goals():
 # =========================================================
 
 @app.route("/add-goal", methods=["POST"])
+@login_required
 def add_goal():
-
+    user_id = session["user_id"]
     title = request.form["title"]
     target_date = request.form["target_date"]
 
     connection = get_db()
-
     connection.execute("""
         INSERT INTO goals
-        (title, target_date)
-        VALUES (?, ?)
+        (user_id, title, target_date)
+        VALUES (?, ?, ?)
     """, (
+        user_id,
         title,
         target_date
     ))
@@ -932,29 +786,29 @@ def add_goal():
 # =========================================================
 
 @app.route("/update-goal/<int:goal_id>", methods=["POST"])
+@login_required
 def update_goal(goal_id):
-
+    user_id = session["user_id"]
     progress = int(request.form["progress"])
 
     if progress < 0:
         progress = 0
-
     if progress > 100:
         progress = 100
 
     status = "Completed" if progress == 100 else "Active"
 
     connection = get_db()
-
     connection.execute("""
         UPDATE goals
         SET progress = ?,
             status = ?
-        WHERE id = ?
+        WHERE id = ? AND user_id = ?
     """, (
         progress,
         status,
-        goal_id
+        goal_id,
+        user_id
     ))
 
     connection.commit()
@@ -968,14 +822,15 @@ def update_goal(goal_id):
 # =========================================================
 
 @app.route("/delete-goal/<int:goal_id>")
+@login_required
 def delete_goal(goal_id):
-
+    user_id = session["user_id"]
     connection = get_db()
 
     connection.execute("""
         DELETE FROM goals
-        WHERE id = ?
-    """, (goal_id,))
+        WHERE id = ? AND user_id = ?
+    """, (goal_id, user_id))
 
     connection.commit()
     connection.close()
@@ -990,14 +845,15 @@ def delete_goal(goal_id):
 @app.route("/reminders")
 @login_required
 def reminders():
-
+    user_id = session["user_id"]
     connection = get_db()
 
     reminders = connection.execute("""
         SELECT *
         FROM reminders
+        WHERE user_id = ?
         ORDER BY reminder_date, reminder_time
-    """).fetchall()
+    """, (user_id,)).fetchall()
 
     connection.close()
 
@@ -1012,19 +868,20 @@ def reminders():
 # =========================================================
 
 @app.route("/add-reminder", methods=["POST"])
+@login_required
 def add_reminder():
-
+    user_id = session["user_id"]
     title = request.form["title"]
     reminder_date = request.form["reminder_date"]
     reminder_time = request.form["reminder_time"]
 
     connection = get_db()
-
     connection.execute("""
         INSERT INTO reminders
-        (title, reminder_date, reminder_time)
-        VALUES (?, ?, ?)
+        (user_id, title, reminder_date, reminder_time)
+        VALUES (?, ?, ?, ?)
     """, (
+        user_id,
         title,
         reminder_date,
         reminder_time
@@ -1041,15 +898,16 @@ def add_reminder():
 # =========================================================
 
 @app.route("/complete-reminder/<int:reminder_id>")
+@login_required
 def complete_reminder(reminder_id):
-
+    user_id = session["user_id"]
     connection = get_db()
 
     connection.execute("""
         UPDATE reminders
         SET status = 'Completed'
-        WHERE id = ?
-    """, (reminder_id,))
+        WHERE id = ? AND user_id = ?
+    """, (reminder_id, user_id))
 
     connection.commit()
     connection.close()
@@ -1062,14 +920,15 @@ def complete_reminder(reminder_id):
 # =========================================================
 
 @app.route("/delete-reminder/<int:reminder_id>")
+@login_required
 def delete_reminder(reminder_id):
-
+    user_id = session["user_id"]
     connection = get_db()
 
     connection.execute("""
         DELETE FROM reminders
-        WHERE id = ?
-    """, (reminder_id,))
+        WHERE id = ? AND user_id = ?
+    """, (reminder_id, user_id))
 
     connection.commit()
     connection.close()
@@ -1084,7 +943,6 @@ def delete_reminder(reminder_id):
 @app.route("/timer")
 @login_required
 def timer():
-
     return render_template("timer.html")
 
 
@@ -1093,20 +951,20 @@ def timer():
 # =========================================================
 
 @app.route("/save-session", methods=["POST"])
+@login_required
 def save_session():
-
+    user_id = session["user_id"]
     subject = request.form["subject"]
     duration = int(request.form["duration"])
-
     today = date.today().isoformat()
 
     connection = get_db()
-
     connection.execute("""
         INSERT INTO study_sessions
-        (subject, duration, session_date)
-        VALUES (?, ?, ?)
+        (user_id, subject, duration, session_date)
+        VALUES (?, ?, ?, ?)
     """, (
+        user_id,
         subject,
         duration,
         today
@@ -1125,40 +983,44 @@ def save_session():
 @app.route("/analytics")
 @login_required
 def analytics():
-
+    user_id = session["user_id"]
     connection = get_db()
 
     total_tasks = connection.execute("""
         SELECT COUNT(*)
         FROM tasks
-    """).fetchone()[0]
+        WHERE user_id = ?
+    """, (user_id,)).fetchone()[0]
 
     completed_tasks = connection.execute("""
         SELECT COUNT(*)
         FROM tasks
-        WHERE status = 'Completed'
-    """).fetchone()[0]
+        WHERE user_id = ? AND status = 'Completed'
+    """, (user_id,)).fetchone()[0]
 
     total_notes = connection.execute("""
         SELECT COUNT(*)
         FROM notes
-    """).fetchone()[0]
+        WHERE user_id = ?
+    """, (user_id,)).fetchone()[0]
 
     total_goals = connection.execute("""
         SELECT COUNT(*)
         FROM goals
-    """).fetchone()[0]
+        WHERE user_id = ?
+    """, (user_id,)).fetchone()[0]
 
     completed_goals = connection.execute("""
         SELECT COUNT(*)
         FROM goals
-        WHERE status = 'Completed'
-    """).fetchone()[0]
+        WHERE user_id = ? AND status = 'Completed'
+    """, (user_id,)).fetchone()[0]
 
     total_study_minutes = connection.execute("""
         SELECT COALESCE(SUM(duration), 0)
         FROM study_sessions
-    """).fetchone()[0]
+        WHERE user_id = ?
+    """, (user_id,)).fetchone()[0]
 
     connection.close()
 
@@ -1180,30 +1042,32 @@ def analytics():
 @app.route("/achievements")
 @login_required
 def achievements():
-
+    user_id = session["user_id"]
     connection = get_db()
 
     completed_tasks = connection.execute("""
         SELECT COUNT(*)
         FROM tasks
-        WHERE status = 'Completed'
-    """).fetchone()[0]
+        WHERE user_id = ? AND status = 'Completed'
+    """, (user_id,)).fetchone()[0]
 
     total_notes = connection.execute("""
         SELECT COUNT(*)
         FROM notes
-    """).fetchone()[0]
+        WHERE user_id = ?
+    """, (user_id,)).fetchone()[0]
 
     completed_goals = connection.execute("""
         SELECT COUNT(*)
         FROM goals
-        WHERE status = 'Completed'
-    """).fetchone()[0]
+        WHERE user_id = ? AND status = 'Completed'
+    """, (user_id,)).fetchone()[0]
 
     total_sessions = connection.execute("""
         SELECT COUNT(*)
         FROM study_sessions
-    """).fetchone()[0]
+        WHERE user_id = ?
+    """, (user_id,)).fetchone()[0]
 
     connection.close()
 
@@ -1245,7 +1109,6 @@ def achievements():
 # RUN
 # =========================================================
 
-# Initialize database when the application starts
 init_db()
 
 if __name__ == "__main__":
