@@ -1,59 +1,24 @@
-
-
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
-<aside class="sidebar">
-    <div class="logo">
-        <i class="fa-solid fa-graduation-cap"></i>
-        <span>Study Planner</span>
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <h2>🎓 Study Planner</h2>
     </div>
 
-    <nav>
-        <a href="/" class="{% if request.path == '/' %}active{% endif %}">
-            <i class="fa-solid fa-house"></i><span>Dashboard</span>
-        </a>
+    <ul class="sidebar-links">
+        <li><a href="/" class="{% if request.path == '/' %}active{% endif %}"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+        <li><a href="/planner" class="{% if request.path == '/planner' %}active{% endif %}"><i class="fa-solid fa-calendar"></i> Study Planner</a></li>
+        <li><a href="/timetable" class="{% if request.path == '/timetable' %}active{% endif %}"><i class="fa-solid fa-calendar-days"></i> Timetable</a></li>
+        <li><a href="/notes" class="{% if request.path == '/notes' %}active{% endif %}"><i class="fa-solid fa-note-sticky"></i> My Notes</a></li>
+        <li><a href="/goals" class="{% if request.path == '/goals' %}active{% endif %}"><i class="fa-solid fa-bullseye"></i> Goals</a></li>
+        <li><a href="/reminders" class="{% if request.path == '/reminders' %}active{% endif %}"><i class="fa-solid fa-bell"></i> Reminders</a></li>
+        <li><a href="/timer" class="{% if request.path == '/timer' %}active{% endif %}"><i class="fa-solid fa-stopwatch"></i> Study Timer</a></li>
+        <li><a href="/analytics" class="{% if request.path == '/analytics' %}active{% endif %}"><i class="fa-solid fa-chart-pie"></i> Analytics</a></li>
+        <li><a href="/achievements" class="{% if request.path == '/achievements' %}active{% endif %}"><i class="fa-solid fa-trophy"></i> Achievements</a></li>
+    </ul>
 
-        <a href="/planner" class="{% if request.path == '/planner' %}active{% endif %}">
-            <i class="fa-solid fa-calendar-days"></i><span>Study Planner</span>
-        </a>
-
-        <a href="/timetable" class="{% if request.path == '/timetable' %}active{% endif %}">
-            <i class="fa-solid fa-calendar-week"></i><span>Timetable</span>
-        </a>
-
-        <a href="/notes" class="{% if request.path == '/notes' %}active{% endif %}">
-            <i class="fa-solid fa-note-sticky"></i><span>My Notes</span>
-        </a>
-
-        <a href="/goals" class="{% if request.path == '/goals' %}active{% endif %}">
-            <i class="fa-solid fa-bullseye"></i><span>Goals</span>
-        </a>
-
-        <a href="/reminders" class="{% if request.path == '/reminders' %}active{% endif %}">
-            <i class="fa-solid fa-bell"></i><span>Reminders</span>
-        </a>
-
-        <a href="/timer" class="{% if request.path == '/timer' %}active{% endif %}">
-            <i class="fa-solid fa-stopwatch"></i><span>Study Timer</span>
-        </a>
-
-        <a href="/analytics" class="{% if request.path == '/analytics' %}active{% endif %}">
-            <i class="fa-solid fa-chart-column"></i><span>Analytics</span>
-        </a>
-
-        <a href="/achievements" class="{% if request.path == '/achievements' %}active{% endif %}">
-            <i class="fa-solid fa-trophy"></i><span>Achievements</span>
-        </a>
-    </nav>
-</aside>
-
-    <div class="sidebar-logout">
-        <form action="{{ url_for('logout') }}" method="POST">
-            <button type="submit" class="logout-btn">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span>Logout</span>
-            </button>
-        </form>
+    <div class="sidebar-footer">
+        <a href="/logout" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
     </div>
-</aside>
+</div>
+
+
+       
