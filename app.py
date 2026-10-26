@@ -131,16 +131,11 @@ def init_db():
         "study_sessions",
         "timetable"
     ]
-
     owner = cursor.execute(
-        "SELECT id FROM users WHERE id = ?", (2,)
+        "SELECT id FROM users ORDER BY id ASC LIMIT 1"
     ).fetchone()
-
-    if owner is None:
-        connection.close()
-        raise RuntimeError(
-            "Account ID 2 was not found. Database migration stopped."
-        )
+    
+    fallback_user_id = owner["id"] if owner else 1
 
     for table in tables:
         columns = [
@@ -149,16 +144,17 @@ def init_db():
                 f"PRAGMA table_info({table})"
             ).fetchall()
         ]
-            
+
         if "user_id" not in columns:
-             cursor.execute(
-                 f"ALTER TABLE {table} ADD COLUMN user_id INTEGER"
-             )
+            cursor.execute(
+                f"ALTER TABLE {table} ADD COLUMN user_id INTEGER"
+            )
 
         cursor.execute(
-             f"UPDATE {table} SET user_id = ? WHERE user_id IS NULL",
-             (fallback_user_id,)
-         )
+            f"UPDATE {table} SET user_id = ? WHERE user_id IS NULL",
+            (fallback_user_id,)
+        )
+        
 
     connection.commit()
     connection.close()
