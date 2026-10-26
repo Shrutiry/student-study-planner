@@ -37,6 +37,39 @@
             {% endif %}
         </main>
     </div>
+
+    <script>
+        function gradeQuiz(event) {
+            event.preventDefault();
+            let blocks = document.querySelectorAll('.question-block');
+            let score = 0;
+            let total = blocks.length;
+
+            blocks.forEach((block) => {
+                let input = block.querySelector('input[name="user_answer"]');
+                let feedback = block.querySelector('.feedback-icon');
+                let correctAnswer = block.getAttribute('data-correct').trim().toLowerCase();
+                let userAnswer = input.value.trim().toLowerCase();
+
+                if (userAnswer === correctAnswer) {
+                    score++;
+                    input.style.borderColor = '#198754';
+                    input.style.backgroundColor = '#d1e7dd';
+                    feedback.style.color = '#198754';
+                    feedback.innerHTML = '<i class="fa-solid fa-check"></i> Correct!';
+                } else {
+                    input.style.borderColor = '#dc3545';
+                    input.style.backgroundColor = '#f8d7da';
+                    feedback.style.color = '#dc3545';
+                    feedback.innerHTML = `<i class="fa-solid fa-xmark"></i> Incorrect (Answer: <strong>${block.getAttribute('data-correct')}</strong>)`;
+                }
+            });
+
+            let resultDiv = document.getElementById('quiz-result');
+            resultDiv.innerHTML = `You scored ${score} out of ${total}!`;
+            resultDiv.style.color = score === total ? '#198754' : '#4f46e5';
+        }
+    </script>
 </body>
 </html>
 
