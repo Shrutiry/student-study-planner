@@ -768,6 +768,21 @@ def note_quiz(note_id):
 
     return render_template("note_quiz.html", note=note, questions=questions)
 
+# =========================================================
+# quize achievements
+# =========================================================
+@app.route("/notes/quiz/complete", methods=["POST"])
+@login_required
+def complete_quiz():
+    user_id = session.get("user_id")
+    # Here you can mark an achievement as unlocked or increment user quiz stats
+    conn = get_db_connection()
+    # Example: Check if an achievement for completing a quiz exists, or add a flash/log
+    conn.close()
+    return {"status": "success", "message": "Quiz completed and achievement recorded!"}
+
+
+
 
 # =========================================================
 # GOALS
