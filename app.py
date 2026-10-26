@@ -1,3 +1,5 @@
+import random
+import re
 from flask import (
     Flask, render_template, request, redirect,
     session, url_for
@@ -727,6 +729,44 @@ def delete_note(note_id):
     connection.close()
 
     return redirect("/notes")
+ 
+# =========================================================
+# note quize
+# =========================================================
+ 
+@app.route("/notes/<int:note_id>/quiz")
+@login_required
+def note_quiz(note_id):
+    user_id = session.get("user_id")
+    conn = get_db_connection()
+    note = conn.execute(
+        "SELECT * FROM notes WHERE id = ? AND user_id = ?",
+        (note_id, user_id)
+    ).fetchone()
+    conn.close()
+
+    if not note:
+        flash("Note not found.", "danger")
+        return redirect(url_for("notes"))
+
+    # Generate quiz questions from note content
+    content = note["content"]
+    sentences = [s.strip() for s in re.split(r'[.!?]\s+', content) if len(s.strip()) > 10]
+    
+    questions = []
+    for sent in sentences[:5]:  # Generate up to 5 questions
+        words = [w for w in sent.split() if len(w) > 4]
+        if words:
+            target_word = random.choice(words)
+            target_word_clean = re.sub(r'[^a-zA-Z0-9]', '', target_word)
+            if len(target_word_clean) > 3:
+                question_text = sent.replace(target_word, "______", 1)
+                questions.append({
+                    "question": question_text,
+                    "answer": target_word_clean
+                })
+
+    return render_template("note_quiz.html", note=note, questions=questions)
 
 
 # =========================================================
