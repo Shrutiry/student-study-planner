@@ -738,7 +738,7 @@ def delete_note(note_id):
 @login_required
 def note_quiz(note_id):
     user_id = session.get("user_id")
-    conn = get_db_connection()
+    conn = get_db()
     note = conn.execute(
         "SELECT * FROM notes WHERE id = ? AND user_id = ?",
         (note_id, user_id)
@@ -776,7 +776,7 @@ def note_quiz(note_id):
 def complete_quiz():
     user_id = session.get("user_id")
     # Here you can mark an achievement as unlocked or increment user quiz stats
-    conn = get_db_connection()
+    conn = get_db()
     # Example: Check if an achievement for completing a quiz exists, or add a flash/log
     conn.close()
     return {"status": "success", "message": "Quiz completed and achievement recorded!"}
