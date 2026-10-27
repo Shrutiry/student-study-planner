@@ -14,10 +14,13 @@
         <a href="/analytics" class="{% if request.path == '/analytics' %}active{% endif %}"><i class="fa-solid fa-chart-pie"></i> Analytics</a>
         <a href="/achievements" class="{% if request.path == '/achievements' %}active{% endif %}"><i class="fa-solid fa-trophy"></i> Achievements</a>
     </nav>
-
     <div class="sidebar-logout">
-        <a href="/logout" class="logout-btn">
-            <i class="fa-solid fa-right-from-bracket"></i> Logout
-        </a>
+        <form action="{{ url_for('logout') }}" method="POST" style="display: inline; width: 100%;">
+            <button type="submit" class="logout-btn" style="background: none; border: none; cursor: pointer; color: inherit; width: 100%; text-align: left; padding: 10px 15px; font: inherit;">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </button>
+        </form>
     </div>
+    
+    
 </div>
