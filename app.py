@@ -1312,49 +1312,7 @@ def delete_reminder(reminder_id):
     return redirect("/reminders")
 
 
-# =========================================================
-# STUDY TIMER
-# =========================================================
 
-@app.route("/timer")
-@login_required
-def timer():
-    return render_template("timer.html")
-
-
-# =========================================================
-# SAVE STUDY SESSION
-# =========================================================
-
-@app.route("/save-session", methods=["POST"])
-@login_required
-def save_session():
-    # If someone visits the URL directly (GET request), just send them back to the timer
-    if request.method == "GET":
-        return redirect(url_for("timer"))
-
-    # If it's a form submission (POST request), save the data
-    user_id = session["user_id"]
-    subject = request.form["subject"]
-    duration = int(request.form["duration"])
-    today = date.today().isoformat()
-
-    connection = get_db()
-    connection.execute("""
-        INSERT INTO study_sessions
-        (user_id, subject, duration, session_date)
-        VALUES (?, ?, ?, ?)
-    """, (
-        user_id,
-        subject,
-        duration,
-        today
-    ))
-
-    connection.commit()
-    connection.close()
-
-    return redirect(url_for("timer"))
 
 
  #===========================================================
