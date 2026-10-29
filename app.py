@@ -870,7 +870,7 @@ def complete_quiz():
     return {"status": "success", "message": "Quiz completed and achievement recorded!"}
 
 
-```python
+
 # =========================================================
 # PLANNER QUIZ - OFFLINE, NO AI OR API KEY
 # =========================================================
@@ -1068,7 +1068,7 @@ def generate_quiz():
         score=score,
         submitted=submitted
     )
-```
+
 
 
 # =========================================================
