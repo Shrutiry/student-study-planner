@@ -1,0 +1,79 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Quiz | Student Study Planner</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        .quiz-container {
+            max-width: 750px;
+            margin: 35px auto;
+            padding: 25px;
+        }
+
+        .quiz-card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .quiz-card input {
+            margin-right: 10px;
+        }
+
+        .quiz-button {
+            background: #6c5ce7;
+            color: white;
+            padding: 12px 22px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .quiz-button:hover {
+            background: #5745c5;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 15px;
+            color: #6c5ce7;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="quiz-container">
+        <a href="{{ url_for('planner') }}" class="back-link">
+            ← Back to Study Planner
+        </a>
+
+        <h1>Study Quiz</h1>
+
+        <div class="quiz-card">
+            <h2>{{ task['subject'] }}</h2>
+            <p><strong>Topic:</strong> {{ task['topic'] }}</p>
+            <p>
+                This page is ready for quiz questions about your study topic.
+            </p>
+            <p>
+                Your task topic is displayed here, but questions have not
+                been generated yet.
+            </p>
+        </div>
+
+        <a href="{{ url_for('planner') }}" class="quiz-button">
+            Return to Planner
+        </a>
+    </div>
+</body>
+</html>
+```
