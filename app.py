@@ -756,43 +756,105 @@ def delete_note(note_id):
 
     return redirect("/notes")
  
+
 # =========================================================
-# note quize
+# NOTE QUIZ (NO AI OR API KEY)
 # =========================================================
- 
-@app.route("/notes/<int:note_id>/quiz")
+
+@app.route("/notes/<int:note_id>/quiz", methods=["GET", "POST"])
 @login_required
 def note_quiz(note_id):
     user_id = session.get("user_id")
+
     conn = get_db()
-    note = conn.execute(
-        "SELECT * FROM notes WHERE id = ? AND user_id = ?",
-        (note_id, user_id)
-    ).fetchone()
+    note = conn.execute("""
+        SELECT *
+        FROM notes
+        WHERE id = ? AND user_id = ?
+    """, (note_id, user_id)).fetchone()
     conn.close()
 
     if not note:
         flash("Note not found.", "danger")
         return redirect(url_for("notes"))
 
-    # Generate quiz questions from note content
-    content = note["content"]
-    sentences = [s.strip() for s in re.split(r'[.!?]\s+', content) if len(s.strip()) > 10]
-    
-    questions = []
-    for sent in sentences[:5]:  # Generate up to 5 questions
-        words = [w for w in sent.split() if len(w) > 4]
-        if words:
-            target_word = random.choice(words)
-            target_word_clean = re.sub(r'[^a-zA-Z0-9]', '', target_word)
-            if len(target_word_clean) > 3:
-                question_text = sent.replace(target_word, "______", 1)
-                questions.append({
-                    "question": question_text,
-                    "answer": target_word_clean
-                })
+    content = note["content"] or ""
 
-    return render_template("note_quiz.html", note=note, questions=questions)
+    # Split note content into sentences
+    sentences = [
+        s.strip()
+        for s in re.split(r'(?<=[.!?])\s+', content)
+        if len(s.strip()) > 15
+    ]
+
+    questions = []
+
+    # Create fill-in-the-blank questions
+    for sentence in sentences:
+        words = re.findall(r"\b[A-Za-z][A-Za-z0-9_-]{3,}\b", sentence)
+
+        if not words:
+            continue
+
+        answer = random.choice(words)
+
+        question_text = re.sub(
+            r"\b" + re.escape(answer) + r"\b",
+            "______",
+            sentence,
+            count=1
+        )
+
+        # Create answer choices from words in the note
+        other_words = [
+            word for word in re.findall(
+                r"\b[A-Za-z][A-Za-z0-9_-]{3,}\b",
+                content
+            )
+            if word.lower() != answer.lower()
+        ]
+
+        choices = list(dict.fromkeys([answer] + other_words))
+
+        if len(choices) < 4:
+            continue
+
+        random.shuffle(choices)
+        choices = choices[:4]
+
+        # Ensure the correct answer is included
+        if answer not in choices:
+            choices[-1] = answer
+
+        random.shuffle(choices)
+
+        questions.append({
+            "question": question_text,
+            "options": choices,
+            "answer": answer
+        })
+
+        if len(questions) >= 5:
+            break
+
+    # Calculate score when answers are submitted
+    score = None
+
+    if request.method == "POST":
+        score = 0
+
+        for i, question in enumerate(questions):
+            selected = request.form.get(f"question_{i}", "")
+
+            if selected == question["answer"]:
+                score += 1
+
+    return render_template(
+        "note_quiz.html",
+        note=note,
+        questions=questions,
+        score=score
+    )
 
 # =========================================================
 # quize achievements
