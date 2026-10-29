@@ -1,96 +1,141 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Quiz: {{ note.title }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
     <div class="layout">
+
         {% include '_sidebar.html' %}
+
         <main class="main">
+
             <div class="page-header">
-                <h1><i class="fa-solid fa-brain"></i> Quiz: {{ note.title }}</h1>
-                <p>Test your knowledge based on your saved note content.</p>
+                <h1>
+                    <i class="fa-solid fa-brain"></i>
+                    Quiz: {{ note.title }}
+                </h1>
+
+                <p>
+                    Test your knowledge using your saved notes.
+                </p>
             </div>
 
             {% if questions %}
-                <form method="POST" id="quiz-form" class="form-card">
-                    {% for q in questions %}
-                        <div style="margin-bottom: 25px;">
-                            <p style="font-weight: bold; margin-bottom: 10px;">Q{{ loop.index }}. {{ q.question }}</p>
-                            <input type="text" name="answer_{{ loop.index0 }}" placeholder="Type the missing word..." required style="max-width: 400px;">
-                            <!-- Hidden input to check answers client-side or server-side -->
-                            <input type="hidden" name="correct_{{ loop.index0 }}" value="{{ q.answer }}">
-                        </div>
-                    {% endfor %}
-                    <button type="submit" class="primary-btn">Submit Answers</button>
-                </form>
-                <div id="quiz-result" style="margin-top: 20px; font-size: 18px; font-weight: bold;"></div>
+
+                {% if score is not none %}
+                    <div class="form-card" style="margin-bottom: 20px;">
+                        <h2>
+                            <i class="fa-solid fa-trophy"></i>
+                            Quiz Result
+                        </h2>
+
+                        <p style="font-size: 20px; font-weight: bold;">
+                            Your score: {{ score }} / {{ questions|length }}
+                        </p>
+
+                        <p>
+                            Percentage:
+                            {{ ((score / (questions|length)) * 100)|round|int }}%
+                        </p>
+
+                        {% if score == questions|length %}
+                            <p>Excellent! You answered every question correctly.</p>
+                        {% else %}
+                            <p>Keep practising to improve your score.</p>
+                        {% endif %}
+
+                        <a href="{{ url_for('note_quiz', note_id=note.id) }}"
+                           class="primary-btn">
+                            <i class="fa-solid fa-rotate"></i>
+                            Try Again
+                        </a>
+
+                        <a href="{{ url_for('notes') }}"
+                           class="primary-btn"
+                           style="margin-left: 8px;">
+                            Back to Notes
+                        </a>
+                    </div>
+
+                {% else %}
+
+                    <form method="POST" class="form-card">
+
+                        {% for q in questions %}
+                            <div style="margin-bottom: 25px; padding-bottom: 18px; border-bottom: 1px solid #e5e7eb;">
+
+                                <p style="font-weight: bold; margin-bottom: 12px;">
+                                    Q{{ loop.index }}. {{ q.question }}
+                                </p>
+
+                                {% for option in q.options %}
+                                    <label style="display: block; margin: 10px 0; cursor: pointer;">
+                                        <input
+                                            type="radio"
+                                            name="question_{{ loop.index0 }}"
+                                            value="{{ option }}"
+                                            required
+                                            style="margin-right: 8px;"
+                                        >
+                                        {{ option }}
+                                    </label>
+                                {% endfor %}
+
+                            </div>
+                        {% endfor %}
+
+                        <button type="submit" class="primary-btn">
+                            <i class="fa-solid fa-check"></i>
+                            Submit Answers
+                        </button>
+
+                    </form>
+
+                {% endif %}
+
             {% else %}
+
                 <div class="empty-box">
-                    <h3>Not enough content to generate a quiz!</h3>
-                    <p>Try adding a bit more detail and longer sentences to this note so questions can be generated.</p>
-                    <a href="{{ url_for('notes') }}" class="primary-btn" style="margin-top: 15px; display: inline-block;">Back to Notes</a>
+                    <h3>
+                        <i class="fa-solid fa-book-open"></i>
+                        Not Enough Content
+                    </h3>
+
+                    <p>
+                        This note does not contain enough suitable text
+                        to generate quiz questions. Add more detailed
+                        sentences and try again.
+                    </p>
+
+                    <a href="{{ url_for('notes') }}"
+                       class="primary-btn"
+                       style="margin-top: 15px; display: inline-block;">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Back to Notes
+                    </a>
                 </div>
+
             {% endif %}
+
         </main>
     </div>
-
-    <script>
-        function gradeQuiz(event) {
-            event.preventDefault();
-            let blocks = document.querySelectorAll('.question-block');
-            let score = 0;
-            let total = blocks.length;
-
-            blocks.forEach((block) => {
-                let input = block.querySelector('input[name="user_answer"]');
-                let feedback = block.querySelector('.feedback-icon');
-                let correctAnswer = block.getAttribute('data-correct').trim().toLowerCase();
-                let userAnswer = input.value.trim().toLowerCase();
-
-                if (userAnswer === correctAnswer) {
-                    score++;
-                    input.style.borderColor = '#198754';
-                    input.style.backgroundColor = '#d1e7dd';
-                    feedback.style.color = '#198754';
-                    feedback.innerHTML = '<i class="fa-solid fa-check"></i> Correct!';
-                } else {
-                    input.style.borderColor = '#dc3545';
-                    input.style.backgroundColor = '#f8d7da';
-                    feedback.style.color = '#dc3545';
-                    feedback.innerHTML = `<i class="fa-solid fa-xmark"></i> Incorrect (Answer: <strong>${block.getAttribute('data-correct')}</strong>)`;
-                }
-            });
-
-            let resultDiv = document.getElementById('quiz-result');
-            resultDiv.innerHTML = `You scored ${score} out of ${total}!`;
-            resultDiv.style.color = score === total ? '#198754' : '#4f46e5';
-            // If user gets a perfect score, notify the backend to record achievement progress
-            if (score === total && total > 0) {
-                fetch('/notes/quiz/complete', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    let badge = document.createElement('div');
-                    badge.style.marginTop = '10px';
-                    badge.style.color = '#198754';
-                    badge.style.fontWeight = 'bold';
-                    badge.innerHTML = '<i class="fa-solid fa-trophy"></i> Perfect Score! Achievement progress updated.';
-                    resultDiv.appendChild(badge);
-                })
-                .catch(error => console.error('Error recording achievement:', error));
-            }
-        }
-    </script>
 </body>
 </html>
+
+
+                   
 
 
      
