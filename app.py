@@ -1074,6 +1074,11 @@ def timer():
 @app.route("/save-session", methods=["POST"])
 @login_required
 def save_session():
+    # If someone visits the URL directly (GET request), just send them back to the timer
+    if request.method == "GET":
+        return redirect(url_for("timer"))
+
+    # If it's a form submission (POST request), save the data
     user_id = session["user_id"]
     subject = request.form["subject"]
     duration = int(request.form["duration"])
@@ -1094,10 +1099,10 @@ def save_session():
     connection.commit()
     connection.close()
 
-    return redirect("/timer")
+    return redirect(url_for("timer")
 
 
-# =========================================================
+ #===========================================================
 # ANALYTICS
 # =========================================================
 
