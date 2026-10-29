@@ -1093,7 +1093,7 @@ def save_session():
     connection.commit()
     connection.close()
 
-    return redirect(url_for("timer")
+    return redirect(url_for("timer"))
 
 
  #===========================================================
