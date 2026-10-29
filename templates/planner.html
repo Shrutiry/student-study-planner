@@ -117,6 +117,90 @@
                 <div class="task-list">
 
                     {% for task in tasks %}
+                         <!-- MY STUDY TASKS -->
+        <div class="card">
+
+            <h2><i class="fa-solid fa-book-open"></i> My Study Tasks</h2>
+
+            {% if tasks %}
+
+                <div class="task-list">
+
+                    {% for task in tasks %}
+                          <!-- MY STUDY TASKS -->
+        <div class="card">
+
+            <h2><i class="fa-solid fa-book-open"></i> My Study Tasks</h2>
+
+            {% if tasks %}
+
+                <div class="task-list">
+
+                    {% for task in tasks %}
+                        <div class="task-card" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; margin-bottom: 10px;">
+
+                            <div class="task-info">
+                                <h3>{{ task['subject'] }}</h3>
+                                <p style="margin: 4px 0;">
+                                    <strong>Topic:</strong> {{ task['topic'] }}
+                                </p>
+                                <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                                    <i class="fa-solid fa-calendar"></i> {{ task['study_date'] }} at {{ task['study_time'] }}
+                                    {% if task['priority'] %}
+                                        | <span style="font-weight: 500;">Priority: {{ task['priority'] }}</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+
+                            <div class="task-actions">
+                                <!-- 🧠 Smart Quiz Link that passes the task ID -->
+                                <a href="/generate-quiz?topic={{ task['topic'] }}&subject={{ task['subject'] }}&task_id={{ task['id'] }}" 
+                                   style="background-color: #0dcaf0; color: #000; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-brain"></i> Take Quiz & Complete
+                                </a>
+                            </div>
+
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+                <p style="color: #666; margin-top: 10px;">No study tasks added yet.</p>
+            {% endif %}
+
+        </div>
+
+                        <div class="task-card">
+
+                            <div class="task-info">
+
+                                <h3>{{ task['subject'] }}</h3>
+
+                                <p>
+                                    <strong>Topic:</strong>
+                                    {{ task['topic'] }}
+                                </p>
+
+                                <p>
+                                    <i class="fa-solid fa-calendar"></i>
+                                    {{ task['study_date'] }}
+
+                        <div class="task-card">
+
+                            <div class="task-info">
+
+                                <h3>{{ task['subject'] }}</h3>
+
+                                <p>
+                                    <strong>Topic:</strong>
+                                    {{ task['topic'] }}
+                                </p>
+
+                                <p>
+                                    <i class="fa-solid fa-calendar"></i>
+                                    {{ task['study_date'] }}
+                        
 
                         <div class="task-card">
 
