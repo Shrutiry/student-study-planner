@@ -350,8 +350,24 @@ def add_task():
     topic = request.form["topic"]
     study_date = request.form["study_date"]
     study_time = request.form["study_time"]
-    priority = request.form["priority"]
+    priority = request.form["priority"]   
 
+    # Check if the date is in the past
+    today_str = date.today().isoformat()
+    if study_date < today_str:
+        connection = get_db()
+        tasks = connection.execute("""
+            SELECT * FROM tasks WHERE user_id = ? ORDER BY study_date, study_time
+        """, (user_id,)).fetchall()
+        connection.close()
+        
+        return render_template(
+            "planner.html",
+            tasks=tasks,
+            error="❌ You cannot schedule a study task for a past date!"
+        )
+
+    
     connection = get_db()
     connection.execute("""
         INSERT INTO tasks
@@ -820,6 +836,22 @@ def add_goal():
     title = request.form["title"]
     target_date = request.form["target_date"]
 
+    # Check if target date is in the past
+    today_str = date.today().isoformat()
+    if target_date < today_str:
+        connection = get_db()
+        goals = connection.execute("""
+            SELECT * FROM goals WHERE user_id = ? ORDER BY target_date
+        """, (user_id,)).fetchall()
+        connection.close()
+
+        return render_template(
+            "goals.html",
+            goals=goals,
+            error="❌ Goal target date cannot be in the past!"
+        )
+
+
     connection = get_db()
     connection.execute("""
         INSERT INTO goals
@@ -930,6 +962,23 @@ def add_reminder():
     title = request.form["title"]
     reminder_date = request.form["reminder_date"]
     reminder_time = request.form["reminder_time"]
+
+    # Check if reminder date is in the past
+    today_str = date.today().isoformat()
+    if reminder_date < today_str:
+        connection = get_db()
+        reminders = connection.execute("""
+            SELECT * FROM reminders WHERE user_id = ? ORDER BY reminder_date, reminder_time
+        """, (user_id,)).fetchall()
+        connection.close()
+
+        return render_template(
+            "reminders.html",
+            reminders=reminders,
+            error="❌ Reminder date cannot be in the past!"
+        )
+
+    
 
     connection = get_db()
     connection.execute("""
