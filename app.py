@@ -809,6 +809,35 @@ def complete_quiz():
 
 
 
+# ================= TASK QUIZ =================
+
+@app.route("/generate-quiz")
+@login_required
+def generate_quiz():
+    user_id = session["user_id"]
+    task_id = request.args.get("task_id", type=int)
+
+    if not task_id:
+        flash("Task not found.", "danger")
+        return redirect(url_for("planner"))
+
+    connection = get_db()
+
+    task = connection.execute("""
+        SELECT *
+        FROM tasks
+        WHERE id = ? AND user_id = ?
+    """, (task_id, user_id)).fetchone()
+
+    connection.close()
+
+    if task is None:
+        flash("Task not found.", "danger")
+        return redirect(url_for("planner"))
+
+    return render_template("task_quiz.html", task=task)
+
+
 
 # =========================================================
 # GOALS
