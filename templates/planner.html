@@ -30,6 +30,26 @@
             <p>Plan your study tasks and track your progress.</p>
         </div>
 
+        <!-- 🔔 TODAY'S STUDY REMINDER BANNER -->
+        {% if today_tasks %}
+            <div style="background: linear-gradient(135deg, #0d6efd, #0dcaf0); color: white; padding: 15px 20px; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(13, 110, 253, 0.2);">
+                <h3 style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px; font-size: 1.1rem; color: white;">
+                    <i class="fa-solid fa-bell"></i> 
+                    Reminder: You have {{ today_tasks|length }} study task(s) scheduled for today!
+                </h3>
+                <ul style="margin: 0; padding-left: 20px; font-size: 0.95rem;">
+                    {% for task in today_tasks %}
+                        <li style="margin-bottom: 4px;">
+                            <strong>{{ task['subject'] }}</strong> — <em>{{ task['topic'] }}</em> at <strong>{{ task['study_time'] }}</strong>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+
+        
+
         <!-- ADD STUDY TASK -->
         <div class="card">
 
