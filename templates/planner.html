@@ -35,6 +35,14 @@
 
             <h2><i class="fa-solid fa-plus-circle"></i> Add Study Task</h2>
 
+            <!-- 🛑 Error Message Display -->
+            {% if error %}
+                <div style="background-color: #f8d7da; color: #842029; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #f5c2c7;">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            
             <form action="/add-task" method="POST" class="form-grid">
 
                 <div>
