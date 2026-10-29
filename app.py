@@ -324,14 +324,15 @@ def planner():
     connection = get_db()
     cursor = connection.cursor()
 
+    # 1. Get all tasks for the user
     cursor.execute("""
         SELECT *
         FROM tasks
         WHERE user_id = ?
         ORDER BY study_date, study_time
     """, (user_id,))
-    
     tasks = cursor.fetchall()
+    
     # 2. Get tasks scheduled specifically for TODAY (acting as reminders)
     cursor.execute("""
         SELECT *
@@ -339,21 +340,14 @@ def planner():
         WHERE user_id = ? AND study_date = ?
         ORDER BY study_time
     """, (user_id, today_str))
-    today_tasks = cursor.fetchall()
-
-
-
     
-    connection.close()
+    today_tasks = cursor.fetchall()  # 👈 Added missing parentheses ()
 
-    return render_template(
-        "planner.html",
-        tasks=tasks,
-        today_tasks=today_tasks
+    connection.close()  # 👈 Always close connection
+
+    # 3. Render the template and send both lists of tasks
+    return render_template("planner.html", tasks=tasks, today_tasks=today_tasks)
     
-    )
-
-
 # =========================================================
 # ADD TASK
 # =========================================================
