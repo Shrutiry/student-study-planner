@@ -1,236 +1,131 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Timetable - Student Study Planner</title>
-
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Student Study Planner - Timetable</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #f6f4ff;
-            color: #30284a;
-            font-family: Arial, sans-serif;
-}
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; margin: 0; padding: 40px; }
+        .card { max-width: 900px; margin: auto; background: white; padding: 25px 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .header-title { font-size: 22px; font-weight: 600; color: #1e293b; margin-bottom: 20px; }
+        
+        /* Form styling */
+        form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 30px; background: #f8fafc; padding: 15px; border-radius: 8px; }
+        form input, form select { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+        form .full-width { grid-column: span 2; }
+        form button { grid-column: span 2; padding: 10px; background-color: #1a73e8; color: white; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; }
+        form button:hover { background-color: #1557b0; }
 
-        .container {
-            max-width: 1000px;
-            margin: auto;
-        }
+        /* Table styling (Rows & Columns) */
+        .table-container { overflow-x: auto; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+        th { background-color: #f8fafc; color: #475569; font-weight: 600; padding: 12px 14px; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: middle; }
+        tr:hover { background-color: #f8fafc; }
 
-        h1 {
-            color: #7359c7;
-        }
+        /* Badges */
+        .time-badge { background: #eff6ff; color: #1d4ed8; padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+        .type-badge { background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; display: inline-block; margin-bottom: 2px; }
+        .day-badge { font-weight: 600; color: #1e293b; }
 
-        .card {
-            background: white;
-            padding: 22px;
-            margin: 20px 0;
-            border-radius: 14px;
-            box-shadow: 0 4px 15px #0000000d;
-        }
+        /* Delete button */
+        .delete-btn { background: #fee2e2; color: #dc2626; border: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; }
+        .delete-btn:hover { background: #fecaca; }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px;
-        }
-
-        input, select, textarea {
-            box-sizing: border-box;
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd6f2;
-            border-radius: 8px;
-            background: white;
-        }
-
-        textarea {
-            min-height: 75px;
-        }
-
-        .full {
-            grid-column: 1 / -1;
-        }
-
-        button {
-            padding: 11px 16px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .add-btn {
-            background: #7359c7;
-            color: white;
-        }
-
-        .entry {
-            margin: 12px 0;
-            padding: 15px;
-            border-left: 4px solid #8973d2;
-            background: #faf9ff;
-            border-radius: 8px;
-        }
-
-        .entry h3 {
-            margin-top: 8px;
-        }
-
-        .entry p {
-            color: #686078;
-        }
-
-        .type {
-            color: #654bb3;
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-        .delete-btn {
-            background: #ffe9e9;
-            color: #b52d2d;
-        }
-
-        .empty {
-            color: #817990;
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 12px;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .full {
-                grid-column: auto;
-            }
-        }
+        .nav-link { text-align: center; margin-top: 25px; }
+        .nav-link a { color: #1a73e8; text-decoration: none; font-weight: 500; }
+        .empty-row { text-align: center; color: #94a3b8; padding: 25px !important; }
     </style>
 </head>
-
-
 <body>
-    <div class="layout">
-
-        {% include '_sidebar.html' %}
-
-        <main class="main">
-        <div class="container">
-
-    <h1><i class="fa-solid fa-calendar-week"></i> My Timetable</h1>
-    <p>Manage your college schedule and personal study sessions.</p>
 
     <div class="card">
-        <h2>Add Timetable Entry</h2>
+        <div class="header-title">Weekly Class & Study Timetable</div>
 
+        <!-- Form to Add Timetable Entry -->
         <form action="/timetable/add" method="POST">
-            <div class="form-grid">
-
-                <select name="entry_type" required>
-                    <option value="">Select activity type</option>
-                    <option value="College">College</option>
-                    <option value="Self Study">Self Study</option>
-                    <option value="Break">Break</option>
-                    <option value="Other">Other</option>
-                </select>
-
-                <select name="day" required>
-                    <option value="">Select day</option>
-                    {% for day in days %}
+            <select name="entry_type" required>
+                <option value="Lecture">Lecture</option>
+                <option value="Lab">Lab Practical</option>
+                <option value="Study">Self Study</option>
+                <option value="Exam">Exam</option>
+            </select>
+            
+            <select name="day" required>
+                {% for day in days %}
                     <option value="{{ day }}">{{ day }}</option>
-                    {% endfor %}
-                </select>
-
-                <input type="text" name="title"
-                       placeholder="Subject or activity name" required>
-
-                <input type="text" name="location"
-                       placeholder="Location (optional)">
-
-                <label>
-                    Start time
-                    <input type="time" name="start_time" required>
-                </label>
-
-                <label>
-                    End time
-                    <input type="time" name="end_time" required>
-                </label>
-
-                <input type="text" name="teacher"
-                       placeholder="Teacher (optional)">
-
-                <textarea name="notes" class="full"
-                          placeholder="Notes (optional)"></textarea>
-
-                <button type="submit" class="add-btn full">
-                    <i class="fa-solid fa-plus"></i> Add to Timetable
-                </button>
-
-            </div>
-        </form>
-    </div>
-
-    <div class="card">
-        <h2><i class="fa-solid fa-calendar-days"></i> Weekly Schedule</h2>
-
-        {% for day in days %}
-            <h3>{{ day }}</h3>
-
-            {% set day_entries = entries
-                | selectattr('day', 'equalto', day) | list %}
-
-            {% if day_entries %}
-                {% for entry in day_entries %}
-                    <div class="entry">
-                        <span class="type">{{ entry['entry_type'] }}</span>
-                        <h3>{{ entry['title'] }}</h3>
-
-                        <p>
-                            <i class="fa-regular fa-clock"></i>
-                            {{ entry['start_time'] }} -
-                            {{ entry['end_time'] }}
-                        </p>
-
-                        {% if entry['location'] %}
-                            <p>Location: {{ entry['location'] }}</p>
-                        {% endif %}
-
-                        {% if entry['teacher'] %}
-                            <p>Teacher: {{ entry['teacher'] }}</p>
-                        {% endif %}
-
-                        {% if entry['notes'] %}
-                            <p>{{ entry['notes'] }}</p>
-                        {% endif %}
-
-                        <form
-                            action="/timetable/delete/{{ entry['id'] }}"
-                            method="POST"
-                            onsubmit="return confirm('Delete this entry?');">
-
-                            <button type="submit" class="delete-btn">
-                                <i class="fa-solid fa-trash"></i> Delete
-                            </button>
-                        </form>
-                    </div>
                 {% endfor %}
-            {% else %}
-                <p class="empty">No entries added for {{ day }}.</p>
-            {% endif %}
-        {% endfor %}
-    
+            </select>
+
+            <input type="text" name="title" class="full-width" placeholder="Subject / Course Title (e.g., Data Structures & Algorithms)" required>
+            
+            <div style="display: flex; gap: 5px; align-items: center;">
+                <label style="font-size: 12px; color: #64748b;">Start:</label>
+                <input type="time" name="start_time" required style="width: 100%;">
             </div>
-        </main>
+            <div style="display: flex; gap: 5px; align-items: center;">
+                <label style="font-size: 12px; color: #64748b;">End:</label>
+                <input type="time" name="end_time" required style="width: 100%;">
+            </div>
+
+            <input type="text" name="location" placeholder="Location / Room (Optional)">
+            <input type="text" name="teacher" placeholder="Instructor / Teacher (Optional)">
+            <input type="text" name="notes" class="full-width" placeholder="Additional Notes (Optional)">
+            
+            <button type="submit">Add Timetable Entry</button>
+        </form>
+
+        <!-- Timetable Table Grid -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>Time</th>
+                        <th>Type & Course</th>
+                        <th>Location & Teacher</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if entries %}
+                        {% for entry in entries %}
+                            <tr>
+                                <td><span class="day-badge">{{ entry['day'] }}</span></td>
+                                <td><span class="time-badge">⏰ {{ entry['start_time'] }} - {{ entry['end_time'] }}</span></td>
+                                <td>
+                                    <div><span class="type-badge">{{ entry['entry_type'] }}</span></div>
+                                    <strong>{{ entry['title'] }}</strong>
+                                    {% if entry['notes'] %}
+                                        <div style="font-size: 12px; color: #64748b; margin-top: 2px;">📝 {{ entry['notes'] }}</div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div>📍 {{ entry['location'] if entry['location'] else 'Online / General' }}</div>
+                                    {% if entry['teacher'] %}
+                                        <div style="font-size: 12px; color: #64748b; margin-top: 2px;">👨‍🏫 {{ entry['teacher'] }}</div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form action="/timetable/delete/{{ entry['id'] }}" method="POST" style="margin:0; padding:0; background:none; display:inline;">
+                                        <button type="submit" class="delete-btn" onclick="return confirm('Delete this entry?');">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="empty-row">No timetable entries added yet. Use the form above to get started!</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="nav-link">
+            <a href="{{ url_for('home') }}">← Back to Dashboard</a>
+        </div>
     </div>
+
 </body>
 </html>
