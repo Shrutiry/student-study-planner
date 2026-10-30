@@ -74,14 +74,26 @@
                             <a href="{{ url_for('complete_task', task_id=task['id']) }}" class="circle-checkbox" title="Click to complete"></a>
                             <span class="task-title"><b>{{ task['subject'] }}</b>: {{ task['topic'] }}</span>
                         </div>
-                        <div class="date-badge">📅 {{ task['study_date'] }}</div>
+                        
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <!-- Priority Color Badge -->
+                            {% if task['priority'] == 'High' %}
+                                <span class="badge-high">High</span>
+                            {% elif task['priority'] == 'Medium' %}
+                                <span class="badge-medium">Medium</span>
+                            {% else %}
+                                <span class="badge-low">Low</span>
+                            {% endif %}
+
+                            <!-- Date Badge -->
+                            <div class="date-badge">📅 {{ task['study_date'] }}</div>
+                        </div>
                     </li>
                 {% endif %}
             {% else %}
                 <li style="color: #94a3b8; justify-content: center;">No pending tasks.</li>
             {% endfor %}
         </ul>
-
         <!-- Completed Tasks Section -->
         <h3>Completed Tasks</h3>
         <ul>
