@@ -925,3 +925,10 @@ button:hover,
     gap: 8px;
     flex: 1;
 }
+.task-list-container, 
+.timetable-container,
+.table-responsive {
+    max-height: 500px;
+    overflow-y: scroll; /* Forces the side scrollbar to appear */
+    overflow-x: auto;
+}
