@@ -324,23 +324,35 @@ def planner():
     connection = get_db()
     cursor = connection.cursor()
 
-    # 1. Get all tasks for the user
+    # 1. Get all tasks sorted by Date, then Priority (High -> Medium -> Low), then Time
     cursor.execute("""
         SELECT *
         FROM tasks
         WHERE user_id = ?
-        ORDER BY study_date, study_time
+        ORDER BY study_date ASC, 
+                 CASE priority 
+                     WHEN 'High' THEN 1 
+                     WHEN 'Medium' THEN 2 
+                     WHEN 'Low' THEN 3 
+                     ELSE 4 
+                 END ASC, 
+                 study_time ASC
     """, (user_id,))
     tasks = cursor.fetchall()
     
-    # 2. Get tasks scheduled specifically for TODAY (acting as reminders)
+    # 2. Get tasks scheduled specifically for TODAY, sorted by priority first
     cursor.execute("""
         SELECT *
         FROM tasks
         WHERE user_id = ? AND study_date = ?
-        ORDER BY study_time
+        ORDER BY CASE priority 
+                     WHEN 'High' THEN 1 
+                     WHEN 'Medium' THEN 2 
+                     WHEN 'Low' THEN 3 
+                     ELSE 4 
+                 END ASC, 
+                 study_time ASC
     """, (user_id, today_str))
-    
     today_tasks = cursor.fetchall()  # 👈 Added missing parentheses ()
 
     connection.close()  # 👈 Always close connection
